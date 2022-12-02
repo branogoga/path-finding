@@ -1,0 +1,4 @@
+#define PathFinding_VERSION_MAJOR @PathFinding_VERSION_MAJOR@
+#define PathFinding_VERSION_MINOR @PathFinding_VERSION_MINOR@
+#define PathFinding_VERSION_PATCH @PathFinding_VERSION_PATCH@
+#define PathFinding_VERSION_TWEAK @PathFinding_VERSION_TWEAK@
