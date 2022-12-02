@@ -17,7 +17,8 @@ include_directories(${Boost_INCLUDE_DIRS})
 #
 # Define application target
 #
-add_executable(path-finding src/main.cpp src/graph.cpp)
+set(SOURCES src/graph.cpp)
+add_executable(path-finding src/main.cpp ${SOURCES})
 configure_file(src/version.h.in version.h)
 target_include_directories(path-finding PUBLIC
         "${PROJECT_BINARY_DIR}"
@@ -34,6 +35,7 @@ enable_testing()
 add_executable(
         path-finding-test
         src/main.test.cpp
+        ${SOURCES}
 )
 target_link_libraries(
         path-finding-test
