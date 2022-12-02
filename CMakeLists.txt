@@ -3,6 +3,17 @@ project(PathFinding VERSION 0.1.0.0 DESCRIPTION "Path finding" LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+# setup Conan dependencies
+set(CONAN_DIR .conan)
+include(${CONAN_DIR}/conanbuildinfo.cmake)
+conan_basic_setup()
+
+#
+#
+#
+find_package(Boost 1.80.0 REQUIRED)
+include_directories(${Boost_INCLUDE_DIRS})
+
 #
 # Define application target
 #
