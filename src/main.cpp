@@ -1,9 +1,9 @@
 #include <iostream>
-#include <sstream>
 
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/graphviz.hpp>
 
+#include "graph.h"
 #include "version.h"
 
 std::string getVersion() {
@@ -13,32 +13,56 @@ std::string getVersion() {
     return out.str();
 }
 
-typedef boost::adjacency_list< boost::listS, boost::vecS, boost::directedS > digraph;
+//WeightedDiGraph create_graph() {
+//    // instantiate a WeightedDiGraph object with 8 vertices
+//    WeightedDiGraph graph(8);
+//
+//    // add some edges
+//    add_edge(0, 1, graph);
+//    add_edge(1, 5, graph);
+//    add_edge(5, 6, graph);
+//    add_edge(2, 3, graph);
+//    add_edge(2, 4, graph);
+//    add_edge(3, 5, graph);
+//    add_edge(4, 5, graph);
+//    add_edge(5, 7, graph);
+//
+//    return graph;
+//}
 
-digraph create_graph() {
-    // instantiate a digraph object with 8 vertices
-    digraph graph(8);
-
-    // add some edges
-    add_edge(0, 1, graph);
-    add_edge(1, 5, graph);
-    add_edge(5, 6, graph);
-    add_edge(2, 3, graph);
-    add_edge(2, 4, graph);
-    add_edge(3, 5, graph);
-    add_edge(4, 5, graph);
-    add_edge(5, 7, graph);
+WeightedDiGraph create_graph() {
+    WeightedDiGraph graph(4);
+    add_edge(0, 1, 2.0f, graph);
+    add_edge(0, 2, 3.0f, graph);
+    add_edge(1, 2, 1.0f, graph);
+    add_edge(0, 3, 1.0f, graph);
+    add_edge(3, 2, 1.0f, graph);
 
     return graph;
 }
 
-void print_graph(const digraph& graph) {
+void print_graph(/*const*/ WeightedDiGraph& graph) {
     // represent graph in DOT format and send to cout
-    write_graphviz(std::cout, graph);
+    boost::dynamic_properties property_writer;
+    property_writer.property("node_id", get(boost::vertex_index, graph));
+    property_writer.property("weight",  get(boost::edge_weight,  graph));
+    write_graphviz_dp(std::cout, graph, property_writer);
 }
 
 int main() {
-    std::cout << "Hello Path Finding" << getVersion() << "!" << std::endl;
-    print_graph(create_graph());
+    std::cout << "Hello Path Finding " << getVersion() << "!" << std::endl;
+
+    auto graph = create_graph();
+    print_graph(graph);
+
+    Vertex start = vertex(0, graph);
+    Vertex target = vertex(2, graph);
+    auto path = shortest_path(graph, start, target);
+    std::cout << "Shortest path from " << start << " to " << target << ": ";
+    for(const auto& vertex : path) {
+        std::cout << vertex << ", ";
+    }
+    std::cout << std::endl;
+
     return 0;
 }

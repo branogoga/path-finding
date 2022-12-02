@@ -9,7 +9,7 @@ include(${CONAN_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()
 
 #
-#
+# Import Boost
 #
 find_package(Boost 1.80.0 REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS})
@@ -17,7 +17,7 @@ include_directories(${Boost_INCLUDE_DIRS})
 #
 # Define application target
 #
-add_executable(path-finding src/main.cpp)
+add_executable(path-finding src/main.cpp src/graph.cpp)
 configure_file(src/version.h.in version.h)
 target_include_directories(path-finding PUBLIC
         "${PROJECT_BINARY_DIR}"
