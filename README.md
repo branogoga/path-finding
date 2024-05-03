@@ -9,6 +9,11 @@ Comparison of different algorithms for single &amp; multi agent path finding (_w
 
 ### Build and run
 
+**Docker**
+```
+docker build . -t path-finding:dev
+```
+
 **Linux:**
 ```
 mkdir .conan && cd .conan
