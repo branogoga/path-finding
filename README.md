@@ -10,7 +10,7 @@ Comparison of different algorithms for single &amp; multi agent path finding (_w
 ### Build and run
 
 Linux:
-'
+```
 mkdir .conan && cd .conan
 conan install .. -s compiler.libcxx=libstdc++11
 cd ..
@@ -18,4 +18,4 @@ cmake .
 make
 chmod +x path-finder
 ./path-finder
-'
+```
