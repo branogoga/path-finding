@@ -33,9 +33,22 @@
 
 # CMake
 cmake-*
+CMakeCache.txt
+CMakeSettings.json
+CMakeUserPresets.json
 
 # Conan
 .conan
 
 # Visual Studio
 .vs
+build
+CMakeFiles
+Debug
+Release
+out
+x64
+*.dir
+*.sln
+*.vcxproj*
+*.cmake

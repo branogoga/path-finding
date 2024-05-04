@@ -30,7 +30,16 @@ chmod +x path-finder
 ```
 
 **Windows - MSVC**
-```
-mkdir .conan && cd .conan
 
+To prevent [issues with spaces in the path](https://github.com/conan-io/conan/issues/16182#issuecomment-2088298270) (_e.g. when Windows user name has space in the path_) ensure, that path to Conan home directory does not contain spaces (_don't forget to restart command line in order environment to apply_):
+
+```
+CONAN_HOME="C:\.conan"
+```
+
+```
+conan install . -s build_type=Debug --build missing
+conan install . -s build_type=Release --build missing
+cmake -DCMAKE_TOOLCHAIN_FILE="build/generators/conan_toolchain.cmake"
+cmake --build .
 ```
