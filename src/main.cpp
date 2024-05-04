@@ -1,10 +1,11 @@
-#include <iostream>
+#include "version.h"
 
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/graphviz.hpp>
 
+#include <iostream>
+
 #include "graph.h"
-#include "version.h"
 
 std::string getVersion() {
     std::ostringstream out;
@@ -35,8 +36,9 @@ void print_graph(/*const*/ WeightedDiGraph& graph) {
 int main() {
     std::cout << "Hello Path Finding " << getVersion() << "!" << std::endl;
 
-    auto graph = create_graph();
-    print_graph(graph);
+    DefaultGraphLoader graphLoader;
+    auto graph = graphLoader.getGraph();
+    //print_graph(graph);
 
     Vertex start = vertex(0, graph);
     Vertex target = vertex(2, graph);
