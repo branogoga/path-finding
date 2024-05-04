@@ -25,8 +25,11 @@ conan install .. -s compiler.libcxx=libstdc++11
 cd ..
 cmake .
 make
-chmod +x path-finder
-./path-finder
+chmod +x path-finding
+./path-finding
+chmod +x path-finding-test
+./path-finding-test
+ctest
 ```
 
 **Windows - MSVC**
@@ -42,4 +45,5 @@ conan install . -s build_type=Debug --build missing
 conan install . -s build_type=Release --build missing
 cmake -DCMAKE_TOOLCHAIN_FILE="build/generators/conan_toolchain.cmake"
 cmake --build .
+ctest
 ```

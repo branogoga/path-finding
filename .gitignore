@@ -36,6 +36,7 @@ cmake-*
 CMakeCache.txt
 CMakeSettings.json
 CMakeUserPresets.json
+Testing
 
 # Conan
 .conan
