@@ -12,6 +12,10 @@ Comparison of different algorithms for single &amp; multi agent path finding (_w
 **Docker**
 ```
 docker build . -t path-finding:dev
+docker run -it path-finding:dev
+cd source
+./path-finding
+./path-finding-test
 ```
 
 **Linux:**

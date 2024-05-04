@@ -36,3 +36,6 @@ cmake-*
 
 # Conan
 .conan
+
+# Visual Studio
+.vs

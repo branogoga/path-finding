@@ -70,3 +70,9 @@ TEST(MainTest, shortest_path_3) {
 
 // TODO: Negative edge
 // TODO: Negative cycle
+
+int main(int argc, char** argv)
+{
+    testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
+}
