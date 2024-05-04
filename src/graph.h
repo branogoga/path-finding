@@ -7,9 +7,10 @@
 
 typedef boost::adjacency_list< boost::listS, boost::vecS, boost::directedS, boost::no_property, boost::property<boost::edge_weight_t, float>> WeightedDiGraph;
 typedef boost::graph_traits<WeightedDiGraph>::vertex_descriptor Vertex;
+typedef WeightedDiGraph::edge_descriptor Edge;
 
-std::vector<Vertex> extract_path(std::vector<Vertex> predecessor, const Vertex& target, const Vertex& start);
 std::vector<Vertex> shortest_path(const WeightedDiGraph& graph, const Vertex& start, const Vertex& target);
+unsigned path_length(const WeightedDiGraph& graph, const std::vector<Vertex>& path);
 
 class GraphLoader {
 public:

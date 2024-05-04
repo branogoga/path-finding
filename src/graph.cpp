@@ -28,6 +28,18 @@ std::vector<Vertex> shortest_path(const WeightedDiGraph& graph, const Vertex& st
     return std::vector<Vertex>(path.rbegin(), path.rend());
 }
 
+unsigned path_length(const WeightedDiGraph& graph, const std::vector<Vertex>& path) {
+    unsigned length = 0;
+    for (size_t index = 0; index < path.size() - 1; ++index) {
+        const std::pair<Edge, bool> edgeDescriptor = boost::edge(path[index], path[index + 1], graph);
+        if (edgeDescriptor.second) {
+            length += boost::get(boost::edge_weight_t(), graph, edgeDescriptor.first);
+        }
+    }
+    return length;
+}
+
+
 WeightedDiGraph DefaultGraphLoader::getGraph() const {
     WeightedDiGraph graph(4);
     add_edge(0, 1, 2.0f, graph);

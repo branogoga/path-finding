@@ -39,6 +39,8 @@ int main() {
             std::cout << vertex << ", ";
         }
         std::cout << std::endl;
+
+        std::cout << "Total length :" << path_length(graph, path) << std::endl;
     }
     catch (std::exception& exception) {
         std::cerr << "Uncaught exception: " << exception.what() << std::endl;
