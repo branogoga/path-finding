@@ -12,7 +12,7 @@ include_directories(${Boost_INCLUDE_DIRS})
 #
 # Define application target
 #
-set(SOURCES src/graph.cpp)
+set(SOURCES src/graph.cpp  src/graph.h)
 add_executable(path-finding src/main.cpp ${SOURCES})
 configure_file(src/version.h.in version.h)
 target_include_directories(path-finding PUBLIC
