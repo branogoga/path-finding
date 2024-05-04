@@ -13,23 +13,6 @@ std::string getVersion() {
     return out.str();
 }
 
-//WeightedDiGraph create_graph() {
-//    // instantiate a WeightedDiGraph object with 8 vertices
-//    WeightedDiGraph graph(8);
-//
-//    // add some edges
-//    add_edge(0, 1, graph);
-//    add_edge(1, 5, graph);
-//    add_edge(5, 6, graph);
-//    add_edge(2, 3, graph);
-//    add_edge(2, 4, graph);
-//    add_edge(3, 5, graph);
-//    add_edge(4, 5, graph);
-//    add_edge(5, 7, graph);
-//
-//    return graph;
-//}
-
 WeightedDiGraph create_graph() {
     WeightedDiGraph graph(4);
     add_edge(0, 1, 2.0f, graph);
