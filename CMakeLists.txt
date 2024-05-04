@@ -30,6 +30,7 @@ enable_testing()
 add_executable(
         path-finding-test
         src/main.test.cpp
+        src/graph.test.cpp
         ${SOURCES}
 )
 target_link_libraries(

@@ -25,18 +25,24 @@ void print_graph(/*const*/ WeightedDiGraph& graph) {
 int main() {
     std::cout << "Hello Path Finding " << getVersion() << "!" << std::endl;
 
-    DefaultGraphLoader graphLoader;
-    auto graph = graphLoader.getGraph();
-    print_graph(graph);
+    try {
+        //MapGraphLoader graphLoader("data\\test.map");
+        DefaultGraphLoader graphLoader;
+        auto graph = graphLoader.getGraph();
+        print_graph(graph);
 
-    Vertex start = vertex(0, graph);
-    Vertex target = vertex(2, graph);
-    auto path = shortest_path(graph, start, target);
-    std::cout << "Shortest path from " << start << " to " << target << ": ";
-    for(const auto& vertex : path) {
-        std::cout << vertex << ", ";
+        Vertex start = vertex(0, graph);
+        Vertex target = vertex(2, graph);
+        auto path = shortest_path(graph, start, target);
+        std::cout << "Shortest path from " << start << " to " << target << ": ";
+        for(const auto& vertex : path) {
+            std::cout << vertex << ", ";
+        }
+        std::cout << std::endl;
     }
-    std::cout << std::endl;
+    catch (std::exception& exception) {
+        std::cerr << "Uncaught exception: " << exception.what() << std::endl;
+    }
 
     return 0;
 }
