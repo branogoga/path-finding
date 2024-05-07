@@ -3,6 +3,12 @@ project(PathFinding VERSION 0.1.0.0 DESCRIPTION "Path finding" LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+# Get the project root directory
+get_filename_component(PROJECT_ROOT_DIR ${CMAKE_HOME_DIRECTORY} ABSOLUTE)
+
+# Add a preprocessor definition with the project root directory
+add_definitions(-DPROJECT_ROOT_DIR="${PROJECT_ROOT_DIR}")
+
 #
 # Import Boost
 #

@@ -24,6 +24,7 @@ void print_graph(/*const*/ WeightedDiGraph& graph) {
 
 int main() {
     std::cout << "Hello Path Finding " << getVersion() << "!" << std::endl;
+    std::cout << "PROJECT_ROOT_DIR " << PROJECT_ROOT_DIR << std::endl;
 
     try {
         //MapGraphLoader graphLoader("data\\test.map");
