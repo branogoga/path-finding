@@ -22,6 +22,7 @@ void print_graph(/*const*/ WeightedDiGraph& graph) {
     property_writer.property("node_id", get(boost::vertex_index, graph));
     property_writer.property("weight",  get(boost::edge_weight,  graph));
     write_graphviz_dp(std::cout, graph, property_writer);
+    //write_graphviz
 }
 
 int main() {
@@ -29,13 +30,8 @@ int main() {
 
     try {
         //DefaultScenarioLoader scenarioLoader;
-        const std::string scenarioFile = std::string(PROJECT_ROOT_DIR) + std::string("/data/test.scen");
-        const auto scenarioFileName = std::filesystem::path(scenarioFile).make_preferred().string(); 
-        std::cout << "scenarioFile = " << scenarioFile << std::endl;
-        std::cout << "path = " << std::filesystem::path(scenarioFile) << std::endl;
-        std::cout << "preferred = " << std::filesystem::path(scenarioFile).make_preferred() << std::endl;
-        std::cout << "string = " << scenarioFileName << std::endl;
-        FileScenarioLoader scenarioLoader(scenarioFileName);
+        const std::string scenarioFile = std::string(PROJECT_ROOT_DIR) + std::string("/data/maze-32-32-2/maze-32-32-2-even-1.scen");
+        FileScenarioLoader scenarioLoader(std::filesystem::path(scenarioFile).make_preferred().string());
         const auto jobRequests = scenarioLoader.getjobRequests();
         auto graph = scenarioLoader.getGraph();
         print_graph(graph);
@@ -45,9 +41,9 @@ int main() {
             Vertex target = vertex(jobRequest.endVertex, graph);
             auto path = shortest_path(graph, start, target);
             std::cout << std::endl;
-            std::cout << "Shortest path from " << start << " to " << target << ": ";
+            std::cout << "Shortest path from " << start << " to " << target << ": " << std::endl;
             for(const auto& vertex : path) {
-                std::cout << vertex << ", ";
+                std::cout << " - " << vertex << ": position = " << graph[vertex].position << std::endl;
             }
             std::cout << std::endl;
 

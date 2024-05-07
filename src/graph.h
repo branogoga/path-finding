@@ -5,7 +5,20 @@
 
 #include <string>
 
-typedef boost::no_property VertexProperties;
+class Point2D {
+public:   
+    double x;
+    double y;
+};
+
+std::ostream& operator<<(std::ostream& stream, const Point2D& point);
+
+class VertexNode {
+public:
+    Point2D position;
+};
+
+typedef VertexNode VertexProperties;
 typedef boost::property<boost::edge_weight_t, float> EdgeProperties;
 typedef boost::adjacency_list< boost::listS, boost::vecS, boost::directedS, VertexProperties, EdgeProperties> WeightedDiGraph;
 typedef boost::graph_traits<WeightedDiGraph>::vertex_descriptor Vertex;

@@ -97,7 +97,9 @@ FileScenarioLoader::FileScenarioLoader(const std::string& filename) {
     std::string line;
     while(file && !file.eof()) {
         std::getline(file, line);
-        jobRequests.emplace_back(parseJobRequest(line, filename));
+        if(!line.empty()) {
+            jobRequests.emplace_back(parseJobRequest(line, filename));
+        }
     }
 }
 

@@ -7,6 +7,11 @@
 #include <fstream>
 #include <optional>
 
+std::ostream& operator<<(std::ostream& stream, const Point2D& point) {
+    stream << "[ " << point.x << "," << point.y << " ]";
+    return stream;
+}
+
 std::vector<Vertex> extract_path(std::vector<Vertex> predecessor, const Vertex& target, const Vertex& start) {
     std::vector<boost::graph_traits<WeightedDiGraph>::vertex_descriptor > path;
     boost::graph_traits<WeightedDiGraph>::vertex_descriptor current = target;
@@ -177,6 +182,7 @@ WeightedDiGraph MapGraphLoader::readFile() {
             const char& value = map[row][column];
             if (isVertexPassable(value)) {
                 size_t currentVertexIndex = *mapPositionToVertexIndex[row][column];
+                graph.m_vertices[currentVertexIndex].m_property.position = {double(row), double(column)};
                 // Add edge to the left
                 if (column > 0 && isVertexPassable(map[row][column-1])) {
                     std::optional<unsigned> leftVertexIndex = mapPositionToVertexIndex[row][column-1];
