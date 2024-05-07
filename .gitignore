@@ -53,3 +53,6 @@ x64
 *.sln
 *.vcxproj*
 *.cmake
+
+# VS Code
+.vscode

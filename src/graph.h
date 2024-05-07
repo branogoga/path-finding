@@ -5,7 +5,9 @@
 
 #include <string>
 
-typedef boost::adjacency_list< boost::listS, boost::vecS, boost::directedS, boost::no_property, boost::property<boost::edge_weight_t, float>> WeightedDiGraph;
+typedef boost::no_property VertexProperties;
+typedef boost::property<boost::edge_weight_t, float> EdgeProperties;
+typedef boost::adjacency_list< boost::listS, boost::vecS, boost::directedS, VertexProperties, EdgeProperties> WeightedDiGraph;
 typedef boost::graph_traits<WeightedDiGraph>::vertex_descriptor Vertex;
 typedef WeightedDiGraph::edge_descriptor Edge;
 
@@ -32,6 +34,9 @@ public:
     MapGraphLoader& operator=(const MapGraphLoader&) = delete;
 
     WeightedDiGraph getGraph() const override;
+    const std::string& getFilename() const;
+    std::optional<unsigned> convertMapPositionToVertexIndex(size_t row, size_t column) const;
+    std::pair<size_t, size_t> convertVertexIndexToMapPosition(unsigned vertex) const;
 
 private: 
     WeightedDiGraph readFile();

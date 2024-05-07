@@ -1,11 +1,13 @@
 #include "version.h"
 
+#include "graph.h"
+#include "scenario.h"
+
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/graphviz.hpp>
 
 #include <iostream>
-
-#include "graph.h"
+#include <filesystem>
 
 std::string getVersion() {
     std::ostringstream out;
@@ -24,24 +26,33 @@ void print_graph(/*const*/ WeightedDiGraph& graph) {
 
 int main() {
     std::cout << "Hello Path Finding " << getVersion() << "!" << std::endl;
-    std::cout << "PROJECT_ROOT_DIR " << PROJECT_ROOT_DIR << std::endl;
 
     try {
-        //MapGraphLoader graphLoader("data\\test.map");
-        DefaultGraphLoader graphLoader;
-        auto graph = graphLoader.getGraph();
+        //DefaultScenarioLoader scenarioLoader;
+        const std::string scenarioFile = std::string(PROJECT_ROOT_DIR) + std::string("/data/test.scen");
+        const auto scenarioFileName = std::filesystem::path(scenarioFile).make_preferred().string(); 
+        std::cout << "scenarioFile = " << scenarioFile << std::endl;
+        std::cout << "path = " << std::filesystem::path(scenarioFile) << std::endl;
+        std::cout << "preferred = " << std::filesystem::path(scenarioFile).make_preferred() << std::endl;
+        std::cout << "string = " << scenarioFileName << std::endl;
+        FileScenarioLoader scenarioLoader(scenarioFileName);
+        const auto jobRequests = scenarioLoader.getjobRequests();
+        auto graph = scenarioLoader.getGraph();
         print_graph(graph);
 
-        Vertex start = vertex(0, graph);
-        Vertex target = vertex(2, graph);
-        auto path = shortest_path(graph, start, target);
-        std::cout << "Shortest path from " << start << " to " << target << ": ";
-        for(const auto& vertex : path) {
-            std::cout << vertex << ", ";
-        }
-        std::cout << std::endl;
+        for(const auto& jobRequest : jobRequests) {
+            Vertex start = vertex(jobRequest.startVertex, graph);
+            Vertex target = vertex(jobRequest.endVertex, graph);
+            auto path = shortest_path(graph, start, target);
+            std::cout << std::endl;
+            std::cout << "Shortest path from " << start << " to " << target << ": ";
+            for(const auto& vertex : path) {
+                std::cout << vertex << ", ";
+            }
+            std::cout << std::endl;
 
-        std::cout << "Total length :" << path_length(graph, path) << std::endl;
+            std::cout << "Total length :" << path_length(graph, path) << std::endl;            
+        }
     }
     catch (std::exception& exception) {
         std::cerr << "Uncaught exception: " << exception.what() << std::endl;

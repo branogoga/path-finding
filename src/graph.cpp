@@ -111,6 +111,18 @@ WeightedDiGraph MapGraphLoader::getGraph() const {
     return graph;
 }
 
+const std::string& MapGraphLoader::getFilename() const {
+    return filename;
+}
+
+std::optional<unsigned> MapGraphLoader::convertMapPositionToVertexIndex(size_t row, size_t column) const {
+    return mapPositionToVertexIndex[row][column];
+}
+
+std::pair<size_t, size_t> MapGraphLoader::convertVertexIndexToMapPosition(unsigned vertex) const {
+    return vertexIndexToMapPosition[vertex];
+}
+
 // Map Format (https://movingai.com/benchmarks/formats.html)
 // 
 // The maps have the following format :
