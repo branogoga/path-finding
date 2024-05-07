@@ -10,6 +10,7 @@ TEST(DefaultGraphLoader, creates_graph_with_4_vertices) {
 
 
 TEST(MapGraphLoader, loads_test_data) {
+    std::cerr << "TEST OUTPUT" << std::endl;
     MapGraphLoader loader(std::string(PROJECT_ROOT_DIR) + "\\data\\test.map");
     const auto graph = loader.getGraph();
     ASSERT_EQ(graph.m_vertices.size(), 3);
