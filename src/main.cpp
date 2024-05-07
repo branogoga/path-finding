@@ -26,7 +26,6 @@ int main() {
     std::cout << "Hello Path Finding " << getVersion() << "!" << std::endl;
 
     try {
-        //
         //MapGraphLoader graphLoader("data\\test.map");
         DefaultGraphLoader graphLoader;
         auto graph = graphLoader.getGraph();
