@@ -11,6 +11,7 @@ public:
     double y;
 };
 
+bool operator==(const Point2D& p1, const Point2D& p2);
 std::ostream& operator<<(std::ostream& stream, const Point2D& point);
 
 class VertexNode {
@@ -24,8 +25,11 @@ typedef boost::adjacency_list< boost::listS, boost::vecS, boost::directedS, Vert
 typedef boost::graph_traits<WeightedDiGraph>::vertex_descriptor Vertex;
 typedef WeightedDiGraph::edge_descriptor Edge;
 
-std::vector<Vertex> shortest_path(const WeightedDiGraph& graph, const Vertex& start, const Vertex& target);
-unsigned path_length(const WeightedDiGraph& graph, const std::vector<Vertex>& path);
+typedef std::vector<Vertex> Path;
+std::ostream& operator<<(std::ostream& stream, const Path& path);
+
+Path shortest_path(const WeightedDiGraph& graph, const Vertex& start, const Vertex& target);
+unsigned path_length(const WeightedDiGraph& graph, const Path& path);
 
 class GraphLoader {
 public:

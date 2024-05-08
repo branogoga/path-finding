@@ -7,12 +7,25 @@
 #include <fstream>
 #include <optional>
 
+bool operator==(const Point2D& p1, const Point2D& p2) {
+    return p1.x == p2.x && p1.y == p2.y;
+}
+
 std::ostream& operator<<(std::ostream& stream, const Point2D& point) {
     stream << "[ " << point.x << "," << point.y << " ]";
     return stream;
 }
 
-std::vector<Vertex> extract_path(std::vector<Vertex> predecessor, const Vertex& target, const Vertex& start) {
+std::ostream& operator<<(std::ostream& stream, const Path& path) {
+    stream << "[";
+    for(auto vertex : path) {
+        stream << vertex << ", " << std::endl;
+    }
+    stream << "]";
+    return stream;
+}
+
+Path extract_path(std::vector<Vertex> predecessor, const Vertex& target, const Vertex& start) {
     std::vector<boost::graph_traits<WeightedDiGraph>::vertex_descriptor > path;
     boost::graph_traits<WeightedDiGraph>::vertex_descriptor current = target;
 
@@ -25,7 +38,7 @@ std::vector<Vertex> extract_path(std::vector<Vertex> predecessor, const Vertex& 
     return path;
 }
 
-std::vector<Vertex> shortest_path(const WeightedDiGraph& graph, const Vertex& start, const Vertex& target) {
+Path shortest_path(const WeightedDiGraph& graph, const Vertex& start, const Vertex& target) {
     std::vector<Vertex> predecessor(num_vertices(graph));
     std::vector<int> distance(num_vertices(graph));
     boost::dijkstra_shortest_paths(graph, start, boost::predecessor_map(&predecessor[0]).distance_map(&distance[0]));
@@ -33,7 +46,7 @@ std::vector<Vertex> shortest_path(const WeightedDiGraph& graph, const Vertex& st
     return std::vector<Vertex>(path.rbegin(), path.rend());
 }
 
-unsigned path_length(const WeightedDiGraph& graph, const std::vector<Vertex>& path) {
+unsigned path_length(const WeightedDiGraph& graph, const Path& path) {
     unsigned length = 0;
     for (size_t index = 0; index < path.size() - 1; ++index) {
         const std::pair<Edge, bool> edgeDescriptor = boost::edge(path[index], path[index + 1], graph);
