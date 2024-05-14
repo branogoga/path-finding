@@ -86,6 +86,10 @@ int main() {
             std::cout << simulation.getTime() << " Simulation timed out." << std::endl;
         }
 
+        if(simulation.isDeadlock()) {
+            std::cout << simulation.getTime() << " Deadlock. Runners wait for each other." << std::endl;
+        }
+
         // const auto start = std::chrono::system_clock::now();
         // std::vector<Path> paths = calculate_shortest_paths(jobRequests, graph, numberOfRobots);
         // const auto end = std::chrono::system_clock::now();

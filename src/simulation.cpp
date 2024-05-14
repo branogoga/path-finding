@@ -7,7 +7,9 @@ Simulation::Simulation(const std::vector<JobRequest>& jobRequests, const Weighte
 , jobAssignments(numberOfRunners, std::nullopt)
 , graph(graph)
 , vertexLocks(graph.m_vertices.size(), std::nullopt)
-, time(0) {
+, time(0)
+, someRunnerMovedInLastStep(true)
+ {
     // Create empty runners at initial position
     for(unsigned i = 0; i < numberOfRunners; ++i) {
         runners.emplace_back(graph, 0);
@@ -75,11 +77,13 @@ void Simulation::finishRunnerJobs() {
 }
 
 void Simulation::moveRunners() {
+    someRunnerMovedInLastStep = false;
     for(unsigned runnerId = 0; runnerId < runners.size(); ++runnerId) {
         auto& runner = runners[runnerId];
         if(lockVertex(runner.getNextVertex(), runnerId)) {
             const auto previousVertex = runner.getLastVisitedVertex();
             runner.advance();
+            someRunnerMovedInLastStep = true;
             if(previousVertex != runner.getLastVisitedVertex()) {
                 unlockVertex(previousVertex);
             }
@@ -97,15 +101,24 @@ void Simulation::advance() {
     ++time;
 }
 
-bool Simulation::isFinished() const {
+bool Simulation::areAllRunnersFinished() const {
     bool areAllRunnersFinished = true;
     for(unsigned runnerId = 0; runnerId < runners.size(); ++runnerId) {
         areAllRunnersFinished &= !isJobAssignedToRunner(runnerId);
         areAllRunnersFinished &= runners[runnerId].isInDestination();
     }
-
-    return newJobRequests.empty() && areAllRunnersFinished;
+    return areAllRunnersFinished;
 }
+
+
+bool Simulation::isFinished() const {
+    return (newJobRequests.empty() && areAllRunnersFinished()) || !someRunnerMovedInLastStep;
+}
+
+bool Simulation::isDeadlock() const {
+    return !areAllRunnersFinished() && !someRunnerMovedInLastStep;
+}
+
 
 unsigned Simulation::getTime() const {
     return time;

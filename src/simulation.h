@@ -12,6 +12,7 @@ public:
     void advance();
 
     bool isFinished() const;
+    bool isDeadlock() const;
     unsigned getTime() const;
 
 protected:
@@ -27,6 +28,8 @@ protected:
     bool lockVertex(const Vertex& vertex, unsigned runnerId);
     void unlockVertex(const Vertex& vertex);
 
+    bool areAllRunnersFinished() const;
+
 private:
     std::vector<Runner> runners;
     WeightedDiGraph graph;
@@ -38,4 +41,5 @@ private:
     std::vector<JobRequest> finishedJobRequests;
 
     unsigned time;
+    bool someRunnerMovedInLastStep;
 };
