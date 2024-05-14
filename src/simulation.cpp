@@ -124,5 +124,5 @@ bool Simulation::lockVertex(const Vertex& vertex, unsigned runnerId) {
 }
 
 void Simulation::unlockVertex(const Vertex& vertex) {
-    vertexLocks[vertex] == std::nullopt;
+    vertexLocks[vertex] = std::nullopt;
 }
