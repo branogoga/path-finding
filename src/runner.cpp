@@ -28,6 +28,14 @@ Vertex Runner::getLastVisitedVertex() const {
     return lastVisitedVertex; 
 }
 
+Vertex Runner::getNextVertex() const {
+    if(indexOfLastVisitedPathVertex+1 <= path.size()-1) {
+        return path[indexOfLastVisitedPathVertex+1];
+    } else {
+        lastVisitedVertex;
+    }
+}
+
 Vertex Runner::getDestinationVertex() const { 
     return destinationVertex; 
 }

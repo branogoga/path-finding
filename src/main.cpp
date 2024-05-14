@@ -75,7 +75,7 @@ int main() {
         print_graph_statistics(graph);
         //print_graph_to_dot_file(graph);
 
-        const unsigned numberOfRobots = 10; //jobRequests.size();
+        const unsigned numberOfRobots = 2; //jobRequests.size();
         const unsigned timeout = 1E+06;
         Simulation simulation(jobRequests, graph, numberOfRobots);
         while(!simulation.isFinished() && simulation.getTime() < timeout) {

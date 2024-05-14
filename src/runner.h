@@ -11,6 +11,7 @@ public:
     const Path& getPath() const;
     const Point2D& getPosition() const;
     Vertex getLastVisitedVertex() const;
+    Vertex getNextVertex() const;
     Vertex getDestinationVertex() const;
 
     bool isTraveling() const;
