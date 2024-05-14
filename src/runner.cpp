@@ -29,7 +29,7 @@ Vertex Runner::getLastVisitedVertex() const {
 }
 
 Vertex Runner::getNextVertex() const {
-    if(indexOfLastVisitedPathVertex+1 <= path.size()-1) {
+    if(!path.empty() && indexOfLastVisitedPathVertex+1 <= path.size()-1) {
         return path[indexOfLastVisitedPathVertex+1];
     } else {
         lastVisitedVertex;

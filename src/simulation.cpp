@@ -14,8 +14,6 @@ Simulation::Simulation(const std::vector<JobRequest>& jobRequests, const Weighte
     for(unsigned i = 0; i < numberOfRunners; ++i) {
         runners.emplace_back(graph, 0);
     }
-
-    assignNewJobsToRunners();
 }
 
 void Simulation::assignNewJobsToRunners() {
@@ -138,4 +136,20 @@ bool Simulation::lockVertex(const Vertex& vertex, unsigned runnerId) {
 
 void Simulation::unlockVertex(const Vertex& vertex) {
     vertexLocks[vertex] = std::nullopt;
+}
+
+const std::vector<JobRequest>& Simulation::getNewJobRequests() const {
+    return newJobRequests;
+}
+
+const std::vector<std::optional<JobRequest>>& Simulation::getJobAssignments() const {
+    return jobAssignments;
+}
+
+const std::vector<JobRequest>& Simulation::getFinishedJobRequests() const {
+    return finishedJobRequests;
+}
+
+const std::vector<Runner>& Simulation::getRunners() const {
+    return runners;
 }

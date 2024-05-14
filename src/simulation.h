@@ -15,6 +15,11 @@ public:
     bool isDeadlock() const;
     unsigned getTime() const;
 
+    const std::vector<JobRequest>& getNewJobRequests() const;
+    const std::vector<std::optional<JobRequest>>& getJobAssignments() const;
+    const std::vector<JobRequest>& getFinishedJobRequests() const;
+    const std::vector<Runner>& getRunners() const;
+
 protected:
     void assignNewJobsToRunners();
     void finishRunnerJobs();
