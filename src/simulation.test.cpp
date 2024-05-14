@@ -38,6 +38,17 @@ public:
         Simulation::moveRunners();
     }
 
+    bool isVertexFreeForRunner(const Vertex& vertex, unsigned runnerId) const {
+        return Simulation::isVertexFreeForRunner(vertex, runnerId);
+    }
+
+    bool lockVertex(const Vertex& vertex, unsigned runnerId) {
+        return Simulation::lockVertex(vertex, runnerId);
+    }
+
+    void unlockVertex(const Vertex& vertex) {
+        Simulation::unlockVertex(vertex);
+    }
 };
 
 TEST(SimulationTest, creates_no_runners) {
@@ -175,7 +186,68 @@ TEST(SimulationTest, finishRunnerJob) {
     EXPECT_TRUE(simulation.isFinished());
 }
 
-// bool isJobAssignedToRunner(unsigned runnerId) const;
-// void assignNextJobToRunner(unsigned runnerId);
-// void finishRunnerJob(unsigned runnerId);
+TEST(SimulationTest, no_lock_on_vertices_initialy) {
+    WeightedDiGraph graph = createGraph();
+    JobRequest jobRequest{1,2};
+    std::vector<JobRequest> jobRequests{jobRequest};
+    const unsigned numberOfRunners = 2;
 
+    SimulationStub simulation(jobRequests, graph, numberOfRunners);
+    for(unsigned vertex = 0; vertex < graph.m_vertices.size(); ++vertex) {
+        EXPECT_TRUE(simulation.isVertexFreeForRunner(vertex, 0));
+        EXPECT_TRUE(simulation.isVertexFreeForRunner(vertex, 1));
+    }
+}
+
+TEST(SimulationTest, locks_vertex_for_runner) {
+    WeightedDiGraph graph = createGraph();
+    JobRequest jobRequest{1,2};
+    std::vector<JobRequest> jobRequests{jobRequest};
+    const unsigned numberOfRunners = 2;
+
+    SimulationStub simulation(jobRequests, graph, numberOfRunners);
+    simulation.lockVertex(0, 1);
+    EXPECT_FALSE(simulation.isVertexFreeForRunner(0, 0));
+    EXPECT_TRUE(simulation.isVertexFreeForRunner(0, 1));
+    for(unsigned vertex = 1; vertex < graph.m_vertices.size(); ++vertex) {
+        EXPECT_TRUE(simulation.isVertexFreeForRunner(vertex, 0));
+        EXPECT_TRUE(simulation.isVertexFreeForRunner(vertex, 1));
+    }
+}
+
+TEST(SimulationTest, does_not_lock_vertex_already_locked_for_other_runner) {
+    WeightedDiGraph graph = createGraph();
+    JobRequest jobRequest{1,2};
+    std::vector<JobRequest> jobRequests{jobRequest};
+    const unsigned numberOfRunners = 2;
+
+    SimulationStub simulation(jobRequests, graph, numberOfRunners);
+    EXPECT_TRUE(simulation.lockVertex(0, 1));
+    EXPECT_FALSE(simulation.lockVertex(0, 0));
+}
+
+TEST(SimulationTest, does_not_throw_if_trying_to_lock_vertex_locked_for_same_runner) {
+    WeightedDiGraph graph = createGraph();
+    JobRequest jobRequest{1,2};
+    std::vector<JobRequest> jobRequests{jobRequest};
+    const unsigned numberOfRunners = 2;
+
+    SimulationStub simulation(jobRequests, graph, numberOfRunners);
+    EXPECT_TRUE(simulation.lockVertex(0, 1));
+    EXPECT_TRUE(simulation.lockVertex(0, 1));
+}
+
+TEST(SimulationTest, unlocks_vertex) {
+    WeightedDiGraph graph = createGraph();
+    JobRequest jobRequest{1,2};
+    std::vector<JobRequest> jobRequests{jobRequest};
+    const unsigned numberOfRunners = 2;
+
+    SimulationStub simulation(jobRequests, graph, numberOfRunners);
+    simulation.lockVertex(0, 1);
+    simulation.unlockVertex(0);
+    for(unsigned vertex = 0; vertex < graph.m_vertices.size(); ++vertex) {
+        EXPECT_TRUE(simulation.isVertexFreeForRunner(vertex, 0));
+        EXPECT_TRUE(simulation.isVertexFreeForRunner(vertex, 1));
+    }
+}
