@@ -74,9 +74,32 @@ int main() {
         print_graph_statistics(graph);
         //print_graph_to_dot_file(graph);
 
-        const unsigned numberOfRobots = 2;
+        const unsigned numberOfRobots = 5;
         std::vector<Path> paths = calculate_shortest_paths(jobRequests, graph, numberOfRobots);
         print_paths(paths, graph);
+
+        typedef std::tuple<unsigned, unsigned, std::vector<Vertex>> Intersection;
+        std::vector<Intersection> intersections;
+        for(unsigned i = 0; i < paths.size(); ++i) {
+            for(unsigned j=0; j < paths.size(); ++j) {
+                if(i < j) {
+                    const auto shared_vertices = intersection(paths[i], paths[j]);
+                    if(!shared_vertices.empty()) {
+                        intersections.emplace_back(i, j, shared_vertices);
+                    }
+                }
+            }
+        }
+
+        std::cout << "Intersections (" << intersections.size() << "):" << std::endl;
+        for(const auto& intersection : intersections) {
+            const auto [i, j, shared_vertices] = intersection;
+            std::cout << " - " << i << ", " << j << ", " << "[";
+            for(const auto& vertex : shared_vertices) {
+                std::cout << vertex << ", ";
+            }
+            std::cout << "]" << std::endl;
+        }
     }
     catch (std::exception& exception) {
         std::cerr << "Uncaught exception: " << exception.what() << std::endl;
