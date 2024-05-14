@@ -57,6 +57,22 @@ unsigned path_length(const WeightedDiGraph& graph, const Path& path) {
     return length;
 }
 
+/// @brief Returns shared vertices of two paths
+/// @param path1 
+/// @param path2 
+/// @return Sorted list of shared vertices
+std::vector<Vertex> intersection(const Path& path1, const Path& path2) {
+    Path vertices1 = path1;
+    Path vertices2 = path2;
+    std::sort(vertices1.begin(), vertices1.end());
+    std::sort(vertices2.begin(), vertices2.end());
+ 
+    std::vector<Vertex> intersection;
+    std::set_intersection(vertices1.begin(), vertices1.end(), vertices2.begin(), vertices2.end(),
+                          std::back_inserter(intersection));
+
+    return intersection;
+}
 
 WeightedDiGraph DefaultGraphLoader::getGraph() const {
     WeightedDiGraph graph(4);
@@ -121,7 +137,7 @@ std::vector<std::string> readMap(std::ifstream& file, unsigned width, unsigned h
     return map;
 }
 
-MapGraphLoader::MapGraphLoader(const std::string& filename): filename(filename) {
+MapGraphLoader::MapGraphLoader(const std::string& filename): filename(filename), width(0), height(0) {
     graph = readFile();
 }
 

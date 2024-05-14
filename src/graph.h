@@ -30,6 +30,7 @@ std::ostream& operator<<(std::ostream& stream, const Path& path);
 
 Path shortest_path(const WeightedDiGraph& graph, const Vertex& start, const Vertex& target);
 unsigned path_length(const WeightedDiGraph& graph, const Path& path);
+std::vector<Vertex> intersection(const Path& path1, const Path& path2);
 
 class GraphLoader {
 public:
