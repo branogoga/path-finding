@@ -57,7 +57,7 @@ unsigned path_length(const WeightedDiGraph& graph, const Path& path) {
     return length;
 }
 
-/// @brief Returns shared vertices of two paths
+/// @brief Returns shared vertices of two paths. Time complexity O(N*logN), where N is max. path length.
 /// @param path1 
 /// @param path2 
 /// @return Sorted list of shared vertices
