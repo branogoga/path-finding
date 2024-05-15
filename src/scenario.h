@@ -1,5 +1,4 @@
-#ifndef PATHFINDING_SCENARIO_H
-#define PATHFINDING_SCENARIO_H
+#pragma once
 
 #include <string>
 #include <vector>
@@ -44,5 +43,3 @@ class FileScenarioLoader : public ScenarioLoader
   std::vector<JobRequest> jobRequests;
   std::unique_ptr<MapGraphLoader> graphLoader;
 };
-
-#endif PATHFINDING_SCENARIO_H
