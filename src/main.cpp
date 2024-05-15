@@ -32,8 +32,11 @@ void print_graph_to_dot_file(/*const*/ WeightedDiGraph &graph)
   boost::dynamic_properties property_writer;
   property_writer.property("node_id", get(boost::vertex_index, graph));
   property_writer.property("weight", get(boost::edge_weight, graph));
+#pragma warning(disable : 4458)  // declaration hides class member
+#pragma warning(disable : 4459)  // declaration hides global declaration
   write_graphviz_dp(std::cout, graph, property_writer);
-  // write_graphviz
+#pragma warning(default : 4459)
+#pragma warning(default : 4458)
 }
 
 std::vector<Path> calculate_shortest_paths(
@@ -87,7 +90,7 @@ int main()
     // print_graph_to_dot_file(graph);
 
     const unsigned numberOfRobots = 2;  // jobRequests.size();
-    const unsigned timeout = 1E+06;
+    const unsigned timeout = (unsigned)1E+06;
     Simulation simulation(jobRequests, graph, numberOfRobots);
     while (!simulation.isFinished() && simulation.getTime() < timeout)
     {

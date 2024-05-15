@@ -19,6 +19,7 @@ include_directories(${Boost_INCLUDE_DIRS})
 #
 # Define application target
 #
+set(TARGET_NAME, path-finding)
 set(SOURCES 
         src/collision.cpp 
         src/collision.h 
@@ -37,6 +38,15 @@ configure_file(src/version.h.in version.h)
 target_include_directories(path-finding PUBLIC
         "${PROJECT_BINARY_DIR}"
         )
+
+# Strict warning level
+if(MSVC)
+  target_compile_options(path-finding PRIVATE /W4 /WX)
+else()
+  target_compile_options(path-finding PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+
+
 
 #
 # Define test target
@@ -61,6 +71,15 @@ target_link_libraries(
         path-finding-test
         GTest::gtest_main
 )
+
+# Strict warning level
+if(MSVC)
+  target_compile_options(path-finding-test PRIVATE /W4 /WX)
+else()
+  target_compile_options(path-finding-test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+
+
 
 include(GoogleTest)
 gtest_discover_tests(path-finding-test)

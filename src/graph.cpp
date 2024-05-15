@@ -45,15 +45,15 @@ Path extract_path(std::vector<Vertex> predecessor, const Vertex& target, const V
 Path shortest_path(const WeightedDiGraph& graph, const Vertex& start, const Vertex& target)
 {
   std::vector<Vertex> predecessor(num_vertices(graph));
-  std::vector<int> distance(num_vertices(graph));
+  std::vector<float> distance(num_vertices(graph));
   boost::dijkstra_shortest_paths(graph, start, boost::predecessor_map(&predecessor[0]).distance_map(&distance[0]));
   auto path = extract_path(predecessor, target, start);
   return std::vector<Vertex>(path.rbegin(), path.rend());
 }
 
-unsigned path_length(const WeightedDiGraph& graph, const Path& path)
+float path_length(const WeightedDiGraph& graph, const Path& path)
 {
-  unsigned length = 0;
+  float length = 0;
   for (size_t index = 0; index < path.size() - 1; ++index)
   {
     const std::pair<Edge, bool> edgeDescriptor = boost::edge(path[index], path[index + 1], graph);
@@ -142,7 +142,7 @@ std::vector<std::string> readMap(std::ifstream& file, unsigned width, unsigned h
 {
   std::vector<std::string> map;
   map.reserve(height);
-  for (int h = 0; h < height; ++h)
+  for (unsigned h = 0; h < height; ++h)
   {
     std::string line;
     std::getline(file, line);
@@ -238,7 +238,7 @@ WeightedDiGraph MapGraphLoader::readFile()
     }
   }
 
-  WeightedDiGraph graph(numberOfPassableNodes);
+  WeightedDiGraph loadedGraph(numberOfPassableNodes);
   for (size_t row = 0; row < height; ++row)
   {
     for (size_t column = 0; column < width; ++column)
@@ -247,15 +247,15 @@ WeightedDiGraph MapGraphLoader::readFile()
       if (isVertexPassable(value))
       {
         size_t currentVertexIndex = *mapPositionToVertexIndex[row][column];
-        graph.m_vertices[currentVertexIndex].m_property.position = {double(row), double(column)};
+        loadedGraph.m_vertices[currentVertexIndex].m_property.position = {double(row), double(column)};
         // Add edge to the left
         if (column > 0 && isVertexPassable(map[row][column - 1]))
         {
           std::optional<unsigned> leftVertexIndex = mapPositionToVertexIndex[row][column - 1];
           if (leftVertexIndex)
           {
-            add_edge(currentVertexIndex, *leftVertexIndex, 1.0f, graph);
-            add_edge(*leftVertexIndex, currentVertexIndex, 1.0f, graph);
+            add_edge(currentVertexIndex, *leftVertexIndex, 1.0f, loadedGraph);
+            add_edge(*leftVertexIndex, currentVertexIndex, 1.0f, loadedGraph);
           }
         }
         // Add edge to the top
@@ -264,12 +264,12 @@ WeightedDiGraph MapGraphLoader::readFile()
           std::optional<unsigned> topVertexIndex = mapPositionToVertexIndex[row - 1][column];
           if (topVertexIndex)
           {
-            add_edge(currentVertexIndex, *topVertexIndex, 1.0f, graph);
-            add_edge(*topVertexIndex, currentVertexIndex, 1.0f, graph);
+            add_edge(currentVertexIndex, *topVertexIndex, 1.0f, loadedGraph);
+            add_edge(*topVertexIndex, currentVertexIndex, 1.0f, loadedGraph);
           }
         }
       }
     }
   }
-  return graph;
+  return loadedGraph;
 }

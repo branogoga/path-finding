@@ -87,7 +87,7 @@ void Runner::travel(const Path& trajectory, bool allowTeleport)
 void Runner::advance()
 {
   const size_t size = path.size();
-  if (path.size() >= 2 && indexOfLastVisitedPathVertex < path.size() - 1)
+  if (size >= 2 && indexOfLastVisitedPathVertex < size - 1)
   {
     ++indexOfLastVisitedPathVertex;
     lastVisitedVertex = path[indexOfLastVisitedPathVertex];

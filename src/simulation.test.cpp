@@ -105,7 +105,7 @@ TEST(SimulationTest, time_is_zero_before_start)
   std::vector<JobRequest> jobRequests{JobRequest{0, 1}};
   const unsigned numberOfRunners = 1;
   SimulationStub simulation(jobRequests, graph, numberOfRunners);
-  EXPECT_EQ(simulation.getTime(), 0);
+  EXPECT_EQ(simulation.getTime(), 0u);
 }
 
 TEST(SimulationTest, increments_time_after_step)
@@ -115,7 +115,7 @@ TEST(SimulationTest, increments_time_after_step)
   const unsigned numberOfRunners = 1;
   SimulationStub simulation(jobRequests, graph, numberOfRunners);
   simulation.advance();
-  EXPECT_EQ(simulation.getTime(), 1);
+  EXPECT_EQ(simulation.getTime(), 1u);
 }
 
 TEST(SimulationTest, initial_job_assignments)
