@@ -19,6 +19,8 @@ include_directories(${Boost_INCLUDE_DIRS})
 # Define application target
 #
 set(SOURCES 
+        src/collision.cpp 
+        src/collision.h 
         src/graph.cpp 
         src/graph.h 
         src/runner.cpp 
@@ -46,6 +48,7 @@ enable_testing()
 add_executable(
         path-finding-test
         src/main.test.cpp
+        src/collision.test.cpp
         src/graph.test.cpp
         src/runner.test.cpp
         src/scenario.test.cpp
