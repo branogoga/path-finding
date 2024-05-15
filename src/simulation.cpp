@@ -110,7 +110,8 @@ void Simulation::moveRunners()
       }
       std::cout << time << " - Runner " << runnerId << " moved to vertex " << runner.getLastVisitedVertex()
                 << " position " << runner.getPosition() << std::endl;
-    } else
+    }
+    else
     {
       std::cout << time << " - Runner " << runnerId << " stays at vertex " << runner.getLastVisitedVertex()
                 << " position " << runner.getPosition() << ". Next vertex " << runner.getNextVertex()

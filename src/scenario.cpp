@@ -52,7 +52,8 @@ JobRequest FileScenarioLoader::parseJobRequest(const std::string& line, const st
                                           .replace_extension(graphFilenamePath.extension())
                                           .string();
     graphLoader = std::make_unique<MapGraphLoader>(graphFilename);
-  } else
+  }
+  else
   {
     if (std::filesystem::path(mapFilename).filename() != std::filesystem::path(graphLoader->getFilename()).filename())
     {
