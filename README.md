@@ -4,8 +4,13 @@ Comparison of different algorithms for single &amp; multi agent path finding (_w
 ## How to run
 
 ### Prerequisities
+
+#### Required
 1. [CMake](https://cmake.org/)
 2. [Connan package manager](https://conan.io/)
+
+#### Recomended
+3. [clang-format](https://releases.llvm.org/)
 
 ### Build and run
 
