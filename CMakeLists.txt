@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.22)
 project(PathFinding VERSION 0.1.0.0 DESCRIPTION "Path finding" LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
 
 # Get the project root directory
 get_filename_component(PROJECT_ROOT_DIR ${CMAKE_HOME_DIRECTORY} ABSOLUTE)

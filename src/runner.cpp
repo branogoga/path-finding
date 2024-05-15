@@ -37,9 +37,10 @@ Vertex Runner::getNextVertex() const
   if (!path.empty() && indexOfLastVisitedPathVertex + 1 <= path.size() - 1)
   {
     return path[indexOfLastVisitedPathVertex + 1];
-  } else
+  }
+  else
   {
-    lastVisitedVertex;
+    return lastVisitedVertex;
   }
 }
 
@@ -70,7 +71,8 @@ void Runner::travel(const Path& trajectory, bool allowTeleport)
       if (allowTeleport)
       {
         lastVisitedVertex = path[0];
-      } else
+      }
+      else
       {
         std::ostringstream message;
         message << "Runner '" << getId() << "' rejects the path, because it does not start at the current position '"

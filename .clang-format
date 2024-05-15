@@ -16,6 +16,10 @@ BraceWrapping:
   AfterClass: true
   AfterControlStatement: true
   AfterFunction: true
+  BeforeElse: true
+  BeforeLambdaBody: true
+  SplitEmptyFunction: true
+  SplitEmptyNamespace: true
 BreakBeforeBinaryOperators: NonAssignment
 BreakBeforeBraces: Custom
 BreakBeforeTernaryOperators: 'true'
