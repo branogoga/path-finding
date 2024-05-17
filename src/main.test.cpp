@@ -13,7 +13,7 @@ TEST(MainTest, shortest_path_1)
 
   Vertex start = vertex(0, graph);
   Vertex target = vertex(2, graph);
-  auto path = shortest_path(graph, start, target);
+  auto path = boost_dijkstra_shortest_path(graph, start, target);
 
   ASSERT_EQ(3, path.size());
   ASSERT_EQ(0, path[0]);
@@ -32,7 +32,7 @@ TEST(MainTest, shortest_path_2)
 
   Vertex start = vertex(0, graph);
   Vertex target = vertex(2, graph);
-  auto path = shortest_path(graph, start, target);
+  auto path = boost_dijkstra_shortest_path(graph, start, target);
 
   ASSERT_EQ(3, path.size());
   ASSERT_EQ(0, path[0]);
@@ -51,7 +51,7 @@ TEST(MainTest, shortest_path_3)
 
   Vertex start = vertex(0, graph);
   Vertex target = vertex(2, graph);
-  auto path = shortest_path(graph, start, target);
+  auto path = boost_dijkstra_shortest_path(graph, start, target);
 
   ASSERT_EQ(2, path.size());
   ASSERT_EQ(0, path[0]);

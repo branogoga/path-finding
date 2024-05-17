@@ -48,7 +48,7 @@ std::vector<Path> calculate_shortest_paths(
     const auto &jobRequest = jobRequests[robotIndex];
     Vertex start = vertex(jobRequest.startVertex, graph);
     Vertex target = vertex(jobRequest.endVertex, graph);
-    paths.emplace_back(shortest_path(graph, start, target));
+    paths.emplace_back(boost_dijkstra_shortest_path(graph, start, target));
   }
   return paths;
 }

@@ -39,3 +39,57 @@ TEST(intersection, returns_empty_vector_if_paths_have_no_intersection)
   const Path path2{4, 5, 6};
   ASSERT_EQ(intersection(path1, path2), std::vector<Vertex>({}));
 }
+
+TEST(shortest_paths, boost_dijkstra_shortest_paths)
+{
+  unsigned num_vertices = 6;  // Number of vertices in the graph
+  WeightedDiGraph graph(num_vertices);
+
+  // Adding edges with weights
+  add_edge(0, 1, 5, graph);
+  add_edge(0, 2, 1, graph);
+  add_edge(1, 3, 2, graph);
+  add_edge(2, 1, 2, graph);
+  add_edge(2, 3, 6, graph);
+  add_edge(2, 4, 3, graph);
+  add_edge(3, 4, 7, graph);
+  add_edge(3, 5, 2, graph);
+  add_edge(4, 5, 4, graph);
+
+  unsigned source_vertex = 0;
+  std::vector<Vertex> predecessor = boost_dijkstra_shortest_paths(graph, source_vertex);
+  EXPECT_EQ(predecessor.size(), num_vertices);
+  EXPECT_EQ(predecessor[0], 0);
+  EXPECT_EQ(predecessor[1], 2);
+  EXPECT_EQ(predecessor[2], 0);
+  EXPECT_EQ(predecessor[3], 1);
+  EXPECT_EQ(predecessor[4], 2);
+  EXPECT_EQ(predecessor[5], 3);
+}
+
+TEST(shortest_paths, dijkstra_shortest_paths)
+{
+  unsigned num_vertices = 6;  // Number of vertices in the graph
+  WeightedDiGraph graph(num_vertices);
+
+  // Adding edges with weights
+  add_edge(0, 1, 5, graph);
+  add_edge(0, 2, 1, graph);
+  add_edge(1, 3, 2, graph);
+  add_edge(2, 1, 2, graph);
+  add_edge(2, 3, 6, graph);
+  add_edge(2, 4, 3, graph);
+  add_edge(3, 4, 7, graph);
+  add_edge(3, 5, 2, graph);
+  add_edge(4, 5, 4, graph);
+
+  unsigned source_vertex = 0;
+  std::vector<Vertex> predecessor = dijkstra_shortest_paths(graph, source_vertex);
+  EXPECT_EQ(predecessor.size(), num_vertices);
+  EXPECT_EQ(predecessor[0], 0);
+  EXPECT_EQ(predecessor[1], 2);
+  EXPECT_EQ(predecessor[2], 0);
+  EXPECT_EQ(predecessor[3], 1);
+  EXPECT_EQ(predecessor[4], 2);
+  EXPECT_EQ(predecessor[5], 3);
+}

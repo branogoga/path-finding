@@ -30,7 +30,15 @@ typedef WeightedDiGraph::edge_descriptor Edge;
 typedef std::vector<Vertex> Path;
 std::ostream& operator<<(std::ostream& stream, const Path& path);
 
-Path shortest_path(const WeightedDiGraph& graph, const Vertex& start, const Vertex& target);
+typedef std::function<std::vector<Vertex>(const WeightedDiGraph& graph, const Vertex& start)> ShortestPathsCalculator;
+std::vector<Vertex> boost_dijkstra_shortest_paths(const WeightedDiGraph& graph, const Vertex& start);
+std::vector<Vertex> dijkstra_shortest_paths(const WeightedDiGraph& graph, const Vertex& start);
+
+typedef std::function<Path(const WeightedDiGraph& graph, const Vertex& start, const Vertex& target)>
+    ShortestPathCalculator;
+
+Path boost_dijkstra_shortest_path(const WeightedDiGraph& graph, const Vertex& start, const Vertex& target);
+
 float path_length(const WeightedDiGraph& graph, const Path& path);
 std::vector<Vertex> intersection(const Path& path1, const Path& path2);
 

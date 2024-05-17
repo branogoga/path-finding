@@ -49,7 +49,7 @@ void Simulation::assignNextJobToRunner(unsigned runnerId)
     auto jobRequest = newJobRequests.back();
     newJobRequests.pop_back();
     jobAssignments[runnerId] = jobRequest;
-    const auto& path = shortest_path(graph, jobRequest.startVertex, jobRequest.endVertex);
+    const auto& path = boost_dijkstra_shortest_path(graph, jobRequest.startVertex, jobRequest.endVertex);
     unlockVertex(runners[runnerId].getLastVisitedVertex());
     runners[runnerId].travel(path, true);
     bool isLocked = lockVertex(runners[runnerId].getLastVisitedVertex(), runnerId);

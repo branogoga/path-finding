@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <fstream>
 #include <optional>
+#include <queue>
 
 bool operator==(const Point2D& p1, const Point2D& p2)
 {
@@ -42,11 +43,57 @@ Path extract_path(std::vector<Vertex> predecessor, const Vertex& target, const V
   return path;
 }
 
-Path shortest_path(const WeightedDiGraph& graph, const Vertex& start, const Vertex& target)
+std::vector<Vertex> boost_dijkstra_shortest_paths(const WeightedDiGraph& graph, const Vertex& start)
 {
   std::vector<Vertex> predecessor(num_vertices(graph));
   std::vector<float> distance(num_vertices(graph));
   boost::dijkstra_shortest_paths(graph, start, boost::predecessor_map(&predecessor[0]).distance_map(&distance[0]));
+  return predecessor;
+}
+
+std::vector<Vertex> dijkstra_shortest_paths(const WeightedDiGraph& graph, const Vertex& start)
+{
+  size_t num_vertices = boost::num_vertices(graph);
+  std::vector<Vertex> predecessor(num_vertices);
+  for (Vertex i = 0; i < num_vertices; ++i)
+  {
+    predecessor[i] = i;
+  }
+  std::vector<float> distances(num_vertices, std::numeric_limits<float>::max());
+  distances[start] = 0.0;
+
+  typedef std::pair<float, Vertex> Pair;  // (distance, vertex)
+  std::priority_queue<Pair, std::vector<Pair>, std::greater<Pair>> pq;
+  pq.push(std::make_pair(0.0f, start));
+
+  while (!pq.empty())
+  {
+    Vertex u = pq.top().second;
+    float dist_u = pq.top().first;
+    pq.pop();
+
+    if (dist_u > distances[u]) continue;
+
+    boost::graph_traits<WeightedDiGraph>::out_edge_iterator ei, ei_end;
+    for (tie(ei, ei_end) = boost::out_edges(u, graph); ei != ei_end; ++ei)
+    {
+      size_t v = target(*ei, graph);
+      float weight = boost::get(boost::edge_weight_t(), graph, *ei);
+      if (distances[u] + weight < distances[v])
+      {
+        distances[v] = distances[u] + weight;
+        predecessor[v] = u;
+        pq.push(std::make_pair(distances[v], v));
+      }
+    }
+  }
+
+  return predecessor;
+}
+
+Path boost_dijkstra_shortest_path(const WeightedDiGraph& graph, const Vertex& start, const Vertex& target)
+{
+  std::vector<Vertex> predecessor = boost_dijkstra_shortest_paths(graph, start);
   auto path = extract_path(predecessor, target, start);
   return std::vector<Vertex>(path.rbegin(), path.rend());
 }
