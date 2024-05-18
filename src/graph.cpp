@@ -53,37 +53,39 @@ std::vector<Vertex> boost_dijkstra_shortest_paths(const WeightedDiGraph& graph, 
 
 std::vector<Vertex> dijkstra_shortest_paths(const WeightedDiGraph& graph, const Vertex& start)
 {
-  size_t num_vertices = boost::num_vertices(graph);
-  std::vector<Vertex> predecessor(num_vertices);
-  for (Vertex i = 0; i < num_vertices; ++i)
+  size_t numberOfVertices = boost::num_vertices(graph);
+  std::vector<Vertex> predecessor(numberOfVertices);
+  for (Vertex i = 0; i < numberOfVertices; ++i)
   {
     predecessor[i] = i;
   }
-  std::vector<float> distances(num_vertices, std::numeric_limits<float>::max());
+  std::vector<Distance> distances(numberOfVertices, std::numeric_limits<Distance>::max());
   distances[start] = 0.0;
 
-  typedef std::pair<float, Vertex> Pair;  // (distance, vertex)
-  std::priority_queue<Pair, std::vector<Pair>, std::greater<Pair>> pq;
-  pq.push(std::make_pair(0.0f, start));
+  typedef std::pair<Distance, Vertex> Pair;  // (distance, vertex)
+  std::priority_queue<Pair, std::vector<Pair>, std::greater<Pair>> priorityQueue;
+  priorityQueue.push(std::make_pair(0.0f, start));
 
-  while (!pq.empty())
+  while (!priorityQueue.empty())
   {
-    Vertex u = pq.top().second;
-    float dist_u = pq.top().first;
-    pq.pop();
+    Vertex bestExploredVertex = priorityQueue.top().second;
+    Distance distanceToBestExploredVertex = priorityQueue.top().first;
+    priorityQueue.pop();
 
-    if (dist_u > distances[u]) continue;
+    if (distanceToBestExploredVertex > distances[bestExploredVertex]) continue;
 
-    boost::graph_traits<WeightedDiGraph>::out_edge_iterator ei, ei_end;
-    for (tie(ei, ei_end) = boost::out_edges(u, graph); ei != ei_end; ++ei)
+    boost::graph_traits<WeightedDiGraph>::out_edge_iterator edgeIterator, edgeIteratorEnd;
+    for (tie(edgeIterator, edgeIteratorEnd) = boost::out_edges(bestExploredVertex, graph);
+         edgeIterator != edgeIteratorEnd;
+         ++edgeIterator)
     {
-      size_t v = target(*ei, graph);
-      float weight = boost::get(boost::edge_weight_t(), graph, *ei);
-      if (distances[u] + weight < distances[v])
+      size_t newExploredVertex = target(*edgeIterator, graph);
+      Distance weight = boost::get(boost::edge_weight_t(), graph, *edgeIterator);
+      if (distances[bestExploredVertex] + weight < distances[newExploredVertex])
       {
-        distances[v] = distances[u] + weight;
-        predecessor[v] = u;
-        pq.push(std::make_pair(distances[v], v));
+        distances[newExploredVertex] = distances[bestExploredVertex] + weight;
+        predecessor[newExploredVertex] = bestExploredVertex;
+        priorityQueue.push(std::make_pair(distances[newExploredVertex], newExploredVertex));
       }
     }
   }

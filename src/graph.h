@@ -20,8 +20,9 @@ class VertexNode
   Point2D position;
 };
 
+typedef float Distance;
 typedef VertexNode VertexProperties;
-typedef boost::property<boost::edge_weight_t, float> EdgeProperties;
+typedef boost::property<boost::edge_weight_t, Distance> EdgeProperties;
 typedef boost::adjacency_list<boost::listS, boost::vecS, boost::directedS, VertexProperties, EdgeProperties>
     WeightedDiGraph;
 typedef boost::graph_traits<WeightedDiGraph>::vertex_descriptor Vertex;
