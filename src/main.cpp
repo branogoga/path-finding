@@ -30,8 +30,24 @@ std::string print_graph_to_dot_file(/*const*/ WeightedDiGraph &graph)
 {
   std::ostringstream out;
   // represent graph in DOT format and send to cout
+  boost::property_map<WeightedDiGraph, boost::vertex_index_t>::type vertex_index = get(boost::vertex_index, graph);
   boost::dynamic_properties property_writer;
   property_writer.property("node_id", get(boost::vertex_index, graph));
+  property_writer.property(
+      "pos",
+      boost::make_transform_value_property_map(
+          [&graph](WeightedDiGraph::vertex_descriptor v)
+          {
+            const auto &position = graph[v].position;
+            std::ostringstream oss;
+            oss << position.x << "," << position.y << "!";
+            return oss.str();
+          },
+          get(boost::vertex_index, graph)));
+  property_writer.property(
+      "pin",
+      boost::make_transform_value_property_map(
+          [](WeightedDiGraph::vertex_descriptor) { return "true"; }, get(boost::vertex_index, graph)));
   property_writer.property("weight", get(boost::edge_weight, graph));
 #pragma warning(disable : 4458)  // declaration hides class member
 #pragma warning(disable : 4459)  // declaration hides global declaration

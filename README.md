@@ -72,4 +72,4 @@ Check the `PROJECT_ROOT/output` directory for output.
 
  Convert resulting graph `.dot` file to visual `.png` image:
 
- `dot -Tpng graph.dot -o graph.png`
+ `fdp -Tpng output/graph.dot -o output/graph.png`
