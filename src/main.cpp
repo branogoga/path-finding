@@ -75,8 +75,12 @@ void print_paths(const std::vector<Path> &paths, const WeightedDiGraph &graph)
   }
 }
 
-const std::string SampleTest = "/data/sample_test/test.scen";
-const std::string Maze_32x32_2_Even_1 = "/data/maze-32-32-2/maze-32-32-2-even-1.scen";
+const std::filesystem::path ProjectRootDirectory = std::filesystem::path(PROJECT_ROOT_DIR).make_preferred();
+const std::filesystem::path DataDirectory = ProjectRootDirectory / "data";
+const std::filesystem::path SampleTest = DataDirectory / "sample_test" / "test.scen";
+const std::filesystem::path Maze_32x32_2_Even_1 = DataDirectory / "maze-32-32-2" / "maze-32-32-2-even-1.scen";
+
+const std::filesystem::path OutputDirectory = ProjectRootDirectory / "output";
 
 int main()
 {
@@ -85,15 +89,16 @@ int main()
   try
   {
     // DefaultScenarioLoader scenarioLoader;
-    const std::string scenarioFile = std::string(PROJECT_ROOT_DIR) + Maze_32x32_2_Even_1;
-    FileScenarioLoader scenarioLoader(std::filesystem::path(scenarioFile).make_preferred().string());
+    const std::filesystem::path scenarioFile = Maze_32x32_2_Even_1;
+    FileScenarioLoader scenarioLoader(scenarioFile.string());
     const auto jobRequests = scenarioLoader.getjobRequests();
     auto graph = scenarioLoader.getGraph();
     print_graph_statistics(graph);
     {
       const std::string graphDotFileContent = print_graph_to_dot_file(graph);
       std::cout << graphDotFileContent << std::endl;
-      std::ofstream graph_dot_file_stream(std::string(PROJECT_ROOT_DIR) + "/graph.dot");
+      std::filesystem::create_directory(OutputDirectory);
+      std::ofstream graph_dot_file_stream(OutputDirectory / "graph.dot");
       graph_dot_file_stream << graphDotFileContent << std::endl;
     }
 

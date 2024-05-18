@@ -68,6 +68,8 @@ ctest
 ## Visualize results
  Install [GraphViz](https://graphviz.org/download/). Make sure the path to installation is present in system path.
 
+Check the `PROJECT_ROOT/output` directory for output.
+
  Convert resulting graph `.dot` file to visual `.png` image:
 
  `dot -Tpng graph.dot -o graph.png`
