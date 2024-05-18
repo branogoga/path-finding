@@ -26,17 +26,19 @@ void print_graph_statistics(/*const*/ WeightedDiGraph &graph)
   std::cout << std::endl;
 }
 
-void print_graph_to_dot_file(/*const*/ WeightedDiGraph &graph)
+std::string print_graph_to_dot_file(/*const*/ WeightedDiGraph &graph)
 {
+  std::ostringstream out;
   // represent graph in DOT format and send to cout
   boost::dynamic_properties property_writer;
   property_writer.property("node_id", get(boost::vertex_index, graph));
   property_writer.property("weight", get(boost::edge_weight, graph));
 #pragma warning(disable : 4458)  // declaration hides class member
 #pragma warning(disable : 4459)  // declaration hides global declaration
-  write_graphviz_dp(std::cout, graph, property_writer);
+  write_graphviz_dp(out, graph, property_writer);
 #pragma warning(default : 4459)
 #pragma warning(default : 4458)
+  return out.str();
 }
 
 std::vector<Path> calculate_shortest_paths(
@@ -73,6 +75,7 @@ void print_paths(const std::vector<Path> &paths, const WeightedDiGraph &graph)
   }
 }
 
+const std::string SampleTest = "/data/sample_test/test.scen";
 const std::string Maze_32x32_2_Even_1 = "/data/maze-32-32-2/maze-32-32-2-even-1.scen";
 
 int main()
@@ -87,7 +90,12 @@ int main()
     const auto jobRequests = scenarioLoader.getjobRequests();
     auto graph = scenarioLoader.getGraph();
     print_graph_statistics(graph);
-    // print_graph_to_dot_file(graph);
+    {
+      const std::string graphDotFileContent = print_graph_to_dot_file(graph);
+      std::cout << graphDotFileContent << std::endl;
+      std::ofstream graph_dot_file_stream(std::string(PROJECT_ROOT_DIR) + "/graph.dot");
+      graph_dot_file_stream << graphDotFileContent << std::endl;
+    }
 
     const unsigned numberOfRobots = 2;  // jobRequests.size();
     const unsigned timeout = (unsigned)1E+06;

@@ -6,6 +6,7 @@ Comparison of different algorithms for single &amp; multi agent path finding (_w
 - non-negative edge weights
 - known position of the vertices
 - constant robot speed (_always travels the same speed, no acceleration / deceleration_)
+- constant robot speed on all edges (_e.g. full speed also on curved trajectories ..._)
 - time is discrete
 - robot appears at the start of the path and disappears when reached the destination
 
@@ -63,3 +64,10 @@ cmake -DCMAKE_TOOLCHAIN_FILE="build/generators/conan_toolchain.cmake"
 cmake --build .
 ctest
 ```
+
+## Visualize results
+ Install [GraphViz](https://graphviz.org/download/). Make sure the path to installation is present in system path.
+
+ Convert resulting graph `.dot` file to visual `.png` image:
+
+ `dot -Tpng graph.dot -o graph.png`
