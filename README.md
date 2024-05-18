@@ -1,6 +1,17 @@
 # Path finding
 Comparison of different algorithms for single &amp; multi agent path finding (_with application to real-world warehouse autonomous robot movement_)
 
+**Assumptions:**
+- arbitrary directed graph (_not restricted to grid, despite examples in data folder are mostly grids_)
+- non-negative edge weights
+- known position of the vertices
+- constant robot speed (_always travels the same speed, no acceleration / deceleration_)
+- time is discrete
+- robot appears at the start of the path and disappears when reached the destination
+
+**Algorithms:**
+- Dijkstra's algorithm
+
 ## How to run
 
 ### Prerequisities
