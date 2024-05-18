@@ -49,6 +49,7 @@ std::string print_graph_to_dot_file(/*const*/ WeightedDiGraph &graph)
       boost::make_transform_value_property_map(
           [](WeightedDiGraph::vertex_descriptor) { return "true"; }, get(boost::vertex_index, graph)));
   property_writer.property("weight", get(boost::edge_weight, graph));
+  property_writer.property("label", get(boost::edge_weight, graph));
 #pragma warning(disable : 4458)  // declaration hides class member
 #pragma warning(disable : 4459)  // declaration hides global declaration
   write_graphviz_dp(out, graph, property_writer);
