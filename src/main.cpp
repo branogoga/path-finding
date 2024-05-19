@@ -32,10 +32,13 @@ std::string print_graph_to_dot_file(/*const*/ WeightedDiGraph &graph, const std:
   const size_t numberOfVertices = num_vertices(graph);
   std::vector<std::string> vertexColors(numberOfVertices, "");
 
-  // Assign color to curent position of Runner
   for (auto runner : runners)
   {
-    vertexColors[runner.getLastVisitedVertex()] = getGraphVizColor(runner.getId());
+    const auto color = getGraphVizColor(runner.getId());
+    for (auto vertex : runner.getRemainingPath())
+    {
+      vertexColors[vertex] = color;
+    }
   }
 
   for (auto &color : vertexColors)
@@ -144,7 +147,7 @@ int main()
     auto graph = scenarioLoader.getGraph();
     print_graph_statistics(graph);
 
-    const unsigned numberOfRobots = 2;  // jobRequests.size();
+    const unsigned numberOfRobots = 3;  // jobRequests.size();
     const unsigned timeout = (unsigned)1E+06;
     Simulation simulation(jobRequests, graph, numberOfRobots);
     simulation.advance();
