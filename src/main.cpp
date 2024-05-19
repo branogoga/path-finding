@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <iostream>
 
+#include "color.h"
 #include "graph.h"
 #include "scenario.h"
 #include "simulation.h"
@@ -26,8 +27,25 @@ void print_graph_statistics(/*const*/ WeightedDiGraph &graph)
   std::cout << std::endl;
 }
 
-std::string print_graph_to_dot_file(/*const*/ WeightedDiGraph &graph)
+std::string print_graph_to_dot_file(/*const*/ WeightedDiGraph &graph, const std::vector<Runner> &runners = {})
 {
+  const size_t numberOfVertices = num_vertices(graph);
+  std::vector<std::string> vertexColors(numberOfVertices, "");
+
+  // Assign color to curent position of Runner
+  for (auto runner : runners)
+  {
+    vertexColors[runner.getLastVisitedVertex()] = getGraphVizColor(runner.getId());
+  }
+
+  for (auto &color : vertexColors)
+  {
+    if (color.size() == 0)
+    {
+      color = "none";
+    }
+  }
+
   std::ostringstream out;
   // represent graph in DOT format and send to cout
   boost::property_map<WeightedDiGraph, boost::vertex_index_t>::type vertex_index = get(boost::vertex_index, graph);
@@ -48,6 +66,20 @@ std::string print_graph_to_dot_file(/*const*/ WeightedDiGraph &graph)
       "pin",
       boost::make_transform_value_property_map(
           [](WeightedDiGraph::vertex_descriptor) { return "true"; }, get(boost::vertex_index, graph)));
+  property_writer.property(
+      "style",
+      boost::make_transform_value_property_map(
+          [](WeightedDiGraph::vertex_descriptor) { return "wedged"; }, get(boost::vertex_index, graph)));
+  property_writer.property(
+      "fillcolor",
+      boost::make_transform_value_property_map(
+          [&vertexColors](WeightedDiGraph::vertex_descriptor vertex)
+          {
+            std::ostringstream oss;
+            oss << vertexColors[vertex] << ":" << vertexColors[vertex];
+            return oss.str();
+          },
+          get(boost::vertex_index, graph)));
   property_writer.property("weight", get(boost::edge_weight, graph));
   property_writer.property("label", get(boost::edge_weight, graph));
 #pragma warning(disable : 4458)  // declaration hides class member
@@ -111,17 +143,20 @@ int main()
     const auto jobRequests = scenarioLoader.getjobRequests();
     auto graph = scenarioLoader.getGraph();
     print_graph_statistics(graph);
+
+    const unsigned numberOfRobots = 2;  // jobRequests.size();
+    const unsigned timeout = (unsigned)1E+06;
+    Simulation simulation(jobRequests, graph, numberOfRobots);
+    simulation.advance();
+
     {
-      const std::string graphDotFileContent = print_graph_to_dot_file(graph);
-      std::cout << graphDotFileContent << std::endl;
+      const std::string graphDotFileContent = print_graph_to_dot_file(graph, simulation.getRunners());
+      // std::cout << graphDotFileContent << std::endl;
       std::filesystem::create_directory(OutputDirectory);
       std::ofstream graph_dot_file_stream(OutputDirectory / "graph.dot");
       graph_dot_file_stream << graphDotFileContent << std::endl;
     }
 
-    const unsigned numberOfRobots = 2;  // jobRequests.size();
-    const unsigned timeout = (unsigned)1E+06;
-    Simulation simulation(jobRequests, graph, numberOfRobots);
     while (!simulation.isFinished() && simulation.getTime() < timeout)
     {
       simulation.advance();
