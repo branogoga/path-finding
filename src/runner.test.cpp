@@ -10,13 +10,13 @@ TEST(Runner, assigns_the_unique_id)
   const auto graph = graphLoader.getGraph();
 
   Runner runner1(graph, 0);
-  ASSERT_EQ(runner1.getId(), 1u);
+  ASSERT_EQ(runner1.getId(), 0u);
 
   Runner runner2(graph, 1);
-  ASSERT_EQ(runner2.getId(), 2u);
+  ASSERT_EQ(runner2.getId(), 1u);
 
   Runner runner3(graph, 2);
-  ASSERT_EQ(runner3.getId(), 3u);
+  ASSERT_EQ(runner3.getId(), 2u);
 }
 
 TEST(Runner, assigns_initial_position)

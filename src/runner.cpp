@@ -3,7 +3,7 @@
 unsigned lastRunnerId = 0;
 
 Runner::Runner(WeightedDiGraph graph, Vertex initialPosition)
-    : id(++lastRunnerId)
+    : id(lastRunnerId++)
     , graph(graph)
     , lastVisitedVertex(initialPosition)
     , destinationVertex(initialPosition)
