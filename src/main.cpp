@@ -2,6 +2,7 @@
 #include <boost/graph/graphviz.hpp>
 #include <filesystem>
 #include <iostream>
+#include <map>
 
 #include "color.h"
 #include "graph.h"
@@ -27,11 +28,11 @@ void print_graph_statistics(/*const*/ WeightedDiGraph &graph)
   std::cout << std::endl;
 }
 
-std::string print_graph_to_dot_file(/*const*/ WeightedDiGraph &graph, const std::vector<Runner> &runners = {})
+std::vector<std::string> getVertexColors(const WeightedDiGraph &graph, const std::vector<Runner> &runners)
 {
   const size_t numberOfVertices = num_vertices(graph);
-  std::vector<std::string> vertexColors(numberOfVertices, "");
 
+  std::vector<std::string> vertexColors(numberOfVertices, "");
   for (auto runner : runners)
   {
     const auto color = getGraphVizColor(runner.getId());
@@ -49,45 +50,42 @@ std::string print_graph_to_dot_file(/*const*/ WeightedDiGraph &graph, const std:
     }
   }
 
+  return vertexColors;
+}
+
+std::string print_graph_to_dot_file(/*const*/ WeightedDiGraph &graph, const std::vector<Runner> &runners = {})
+{
+  std::vector<std::string> vertexColors = getVertexColors(graph, runners);
+  typedef std::pair<size_t, size_t> EdgeKeyType;
+  std::map<EdgeKeyType, std::string> edge_colors;
+  for (auto runner : runners)
+  {
+    const auto color = getGraphVizColor(runner.getId());
+    const auto remainingPath = runner.getRemainingPath();
+    for (auto index = 0; index < remainingPath.size() - 1; ++index)
+    {
+      edge_colors[{remainingPath[index], remainingPath[index + 1]}] = color;
+    }
+  }
+
   std::ostringstream out;
-  // represent graph in DOT format and send to cout
-  boost::property_map<WeightedDiGraph, boost::vertex_index_t>::type vertex_index = get(boost::vertex_index, graph);
-  boost::dynamic_properties property_writer;
-  property_writer.property("node_id", get(boost::vertex_index, graph));
-  property_writer.property(
-      "pos",
-      boost::make_transform_value_property_map(
-          [&graph](WeightedDiGraph::vertex_descriptor v)
-          {
-            const auto &position = graph[v].position;
-            std::ostringstream oss;
-            oss << position.x << "," << position.y << "!";
-            return oss.str();
-          },
-          get(boost::vertex_index, graph)));
-  property_writer.property(
-      "pin",
-      boost::make_transform_value_property_map(
-          [](WeightedDiGraph::vertex_descriptor) { return "true"; }, get(boost::vertex_index, graph)));
-  property_writer.property(
-      "style",
-      boost::make_transform_value_property_map(
-          [](WeightedDiGraph::vertex_descriptor) { return "wedged"; }, get(boost::vertex_index, graph)));
-  property_writer.property(
-      "fillcolor",
-      boost::make_transform_value_property_map(
-          [&vertexColors](WeightedDiGraph::vertex_descriptor vertex)
-          {
-            std::ostringstream oss;
-            oss << vertexColors[vertex] << ":" << vertexColors[vertex];
-            return oss.str();
-          },
-          get(boost::vertex_index, graph)));
-  property_writer.property("weight", get(boost::edge_weight, graph));
-  property_writer.property("label", get(boost::edge_weight, graph));
+
+  auto vertex_writer = [&graph, &vertexColors](std::ostream &out, const WeightedDiGraph::vertex_descriptor &v)
+  {
+    out << "[pin=true, pos=\"" << graph[v].position.x << "," << graph[v].position.y << "!\", style=wedged, fillcolor=\""
+        << vertexColors[v] << ":" << vertexColors[v] << "\"]";
+  };
+
+  auto edge_writer = [&graph, &edge_colors](std::ostream &out, const WeightedDiGraph::edge_descriptor &e)
+  {
+    auto colorIterator = edge_colors.find({e.m_source, e.m_target});
+    auto color = colorIterator != edge_colors.end() ? colorIterator->second : "black";
+    out << "[weight=\"" << boost::get(boost::edge_weight_t(), graph, e) << "\", color=\"" << color << "\"]";
+  };
+
 #pragma warning(disable : 4458)  // declaration hides class member
 #pragma warning(disable : 4459)  // declaration hides global declaration
-  write_graphviz_dp(out, graph, property_writer);
+  write_graphviz(out, graph, vertex_writer, edge_writer);
 #pragma warning(default : 4459)
 #pragma warning(default : 4458)
   return out.str();
@@ -154,7 +152,6 @@ int main()
 
     {
       const std::string graphDotFileContent = print_graph_to_dot_file(graph, simulation.getRunners());
-      // std::cout << graphDotFileContent << std::endl;
       std::filesystem::create_directory(OutputDirectory);
       std::ofstream graph_dot_file_stream(OutputDirectory / "graph.dot");
       graph_dot_file_stream << graphDotFileContent << std::endl;
@@ -174,6 +171,10 @@ int main()
     {
       std::cout << simulation.getTime() << " Deadlock. Runners wait for each other." << std::endl;
     }
+
+    std::cout << simulation.getNewJobRequests().size() << " jobs was not started." << std::endl;
+    std::cout << simulation.getJobAssignments().size() << " jobs is assigned." << std::endl;
+    std::cout << simulation.getFinishedJobRequests().size() << " jobs was finished." << std::endl;
 
     // const auto start = std::chrono::system_clock::now();
     // std::vector<Path> paths = calculate_shortest_paths(jobRequests, graph,
