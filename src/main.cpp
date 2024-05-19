@@ -91,6 +91,22 @@ std::string print_graph_to_dot_file(/*const*/ WeightedDiGraph &graph, const std:
   return out.str();
 }
 
+const std::filesystem::path ProjectRootDirectory = std::filesystem::path(PROJECT_ROOT_DIR).make_preferred();
+const std::filesystem::path DataDirectory = ProjectRootDirectory / "data";
+const std::filesystem::path SampleTest = DataDirectory / "sample_test" / "test.scen";
+const std::filesystem::path Maze_32x32_2_Even_1 = DataDirectory / "maze-32-32-2" / "maze-32-32-2-even-1.scen";
+
+const std::filesystem::path OutputDirectory = ProjectRootDirectory / "output";
+
+void write_graph_to_dot_file(
+    const std::filesystem::path &filename, /*const*/ WeightedDiGraph &graph, const std::vector<Runner> &runners = {})
+{
+  const std::string graphDotFileContent = print_graph_to_dot_file(graph, runners);
+  std::filesystem::create_directory(OutputDirectory);
+  std::ofstream graph_dot_file_stream(filename);
+  graph_dot_file_stream << graphDotFileContent << std::endl;
+}
+
 std::vector<Path> calculate_shortest_paths(
     const std::vector<JobRequest> &jobRequests, const WeightedDiGraph &graph, const unsigned numberOfRobots)
 {
@@ -125,13 +141,6 @@ void print_paths(const std::vector<Path> &paths, const WeightedDiGraph &graph)
   }
 }
 
-const std::filesystem::path ProjectRootDirectory = std::filesystem::path(PROJECT_ROOT_DIR).make_preferred();
-const std::filesystem::path DataDirectory = ProjectRootDirectory / "data";
-const std::filesystem::path SampleTest = DataDirectory / "sample_test" / "test.scen";
-const std::filesystem::path Maze_32x32_2_Even_1 = DataDirectory / "maze-32-32-2" / "maze-32-32-2-even-1.scen";
-
-const std::filesystem::path OutputDirectory = ProjectRootDirectory / "output";
-
 int main()
 {
   std::cout << "Hello Path Finding " << getVersion() << "!" << std::endl;
@@ -149,13 +158,8 @@ int main()
     const unsigned timeout = (unsigned)1E+06;
     Simulation simulation(jobRequests, graph, numberOfRobots);
     simulation.advance();
-
-    {
-      const std::string graphDotFileContent = print_graph_to_dot_file(graph, simulation.getRunners());
-      std::filesystem::create_directory(OutputDirectory);
-      std::ofstream graph_dot_file_stream(OutputDirectory / "graph.dot");
-      graph_dot_file_stream << graphDotFileContent << std::endl;
-    }
+    std::filesystem::create_directory(OutputDirectory);
+    write_graph_to_dot_file(OutputDirectory / "graph.dot", graph, simulation.getRunners());
 
     while (!simulation.isFinished() && simulation.getTime() < timeout)
     {
@@ -169,6 +173,7 @@ int main()
 
     if (simulation.isDeadlock())
     {
+      write_graph_to_dot_file(OutputDirectory / "deadlock.dot", graph, simulation.getRunners());
       std::cout << simulation.getTime() << " Deadlock. Runners wait for each other." << std::endl;
     }
 
