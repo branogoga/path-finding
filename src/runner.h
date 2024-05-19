@@ -10,6 +10,7 @@ class Runner
 
   unsigned getId() const;
   const Path& getPath() const;
+  Path getRemainingPath() const;
   const Point2D& getPosition() const;
   Vertex getLastVisitedVertex() const;
   Vertex getNextVertex() const;

@@ -97,6 +97,7 @@ TEST(Runner, advances_position_of_the_runer_to_next_vertex)
   ASSERT_EQ(runner.getDestinationVertex(), 3);
   ASSERT_EQ(runner.getPosition(), graph.m_vertices[1].m_property.position);
   ASSERT_EQ(runner.getPath(), Path({0, 1, 2, 3}));
+  ASSERT_EQ(runner.getRemainingPath(), Path({1, 2, 3}));
   ASSERT_TRUE(runner.isTraveling());
   ASSERT_FALSE(runner.isInDestination());
 }

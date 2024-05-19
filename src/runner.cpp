@@ -22,6 +22,16 @@ const Path& Runner::getPath() const
   return path;
 }
 
+Path Runner::getRemainingPath() const
+{
+  Path remainingPath;
+  for (unsigned index = indexOfLastVisitedPathVertex; index < path.size(); ++index)
+  {
+    remainingPath.push_back(path[index]);
+  }
+  return remainingPath;
+}
+
 const Point2D& Runner::getPosition() const
 {
   return position;
