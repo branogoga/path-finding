@@ -30,10 +30,9 @@ std::vector<std::string> getVertexColors(const WeightedDiGraph &graph, const std
   return vertexColors;
 }
 
-std::string print_graph_to_dot_file(/*const*/ WeightedDiGraph &graph, const std::vector<Runner> &runners = {})
+typedef std::pair<size_t, size_t> EdgeKeyType;
+std::map<EdgeKeyType, std::string> getEdgeColors(const WeightedDiGraph &graph, const std::vector<Runner> &runners)
 {
-  std::vector<std::string> vertexColors = getVertexColors(graph, runners);
-  typedef std::pair<size_t, size_t> EdgeKeyType;
   std::map<EdgeKeyType, std::string> edge_colors;
   for (auto runner : runners)
   {
@@ -44,6 +43,13 @@ std::string print_graph_to_dot_file(/*const*/ WeightedDiGraph &graph, const std:
       edge_colors[{remainingPath[index], remainingPath[index + 1]}] = color;
     }
   }
+  return edge_colors;
+}
+
+std::string print_graph_to_dot_file(WeightedDiGraph &graph, const std::vector<Runner> &runners = {})
+{
+  std::vector<std::string> vertexColors = getVertexColors(graph, runners);
+  std::map<EdgeKeyType, std::string> edge_colors = getEdgeColors(graph, runners);
 
   std::ostringstream out;
 
