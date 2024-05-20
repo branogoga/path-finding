@@ -1,7 +1,9 @@
 #include "graph.h"
 
 #include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/astar_search.hpp>
 #include <boost/graph/dijkstra_shortest_paths.hpp>
+#include <boost/graph/graph_traits.hpp>
 #include <filesystem>
 #include <fstream>
 #include <optional>
@@ -98,6 +100,96 @@ Path boost_dijkstra_shortest_path(const WeightedDiGraph& graph, const Vertex& st
   std::vector<Vertex> predecessor = boost_dijkstra_shortest_paths(graph, start);
   auto path = extract_path(predecessor, target, start);
   return std::vector<Vertex>(path.rbegin(), path.rend());
+}
+
+// Define heuristic function
+class manhattan_distance_heuristic : public boost::astar_heuristic<WeightedDiGraph, Distance>
+{
+ public:
+  manhattan_distance_heuristic(WeightedDiGraph graph, Vertex goal) : m_graph(graph), m_goal(goal)
+  {
+  }
+
+  Distance operator()(Vertex v)
+  {
+    // Example heuristic: Manhattan distance between v and the goal
+    Distance dx = std::abs(m_graph[m_goal].position.x - m_graph[v].position.x);
+    Distance dy = std::abs(m_graph[m_goal].position.y - m_graph[v].position.y);
+    return dx + dy;
+  }
+
+ private:
+  WeightedDiGraph m_graph;
+  Vertex m_goal;
+};
+
+// euclidean distance heuristic
+class euclidean_distance_heuristic : public boost::astar_heuristic<WeightedDiGraph, Distance>
+{
+ public:
+  euclidean_distance_heuristic(WeightedDiGraph graph, Vertex goal) : m_graph(graph), m_goal(goal)
+  {
+  }
+  Distance operator()(Vertex v)
+  {
+    Distance dx = m_graph[m_goal].position.x - m_graph[v].position.x;
+    Distance dy = m_graph[m_goal].position.y - m_graph[v].position.y;
+    return ::sqrt(dx * dx + dy * dy);
+  }
+
+ private:
+  WeightedDiGraph m_graph;
+  Vertex m_goal;
+};
+
+struct found_goal {
+};  // exception for termination
+
+// visitor that terminates when we find the goal
+class astar_goal_visitor : public boost::default_astar_visitor
+{
+ public:
+  astar_goal_visitor(Vertex goal) : m_goal(goal)
+  {
+  }
+  template <class Graph>
+  void examine_vertex(Vertex u, Graph&)
+  {
+    if (u == m_goal) throw found_goal();
+  }
+
+ private:
+  Vertex m_goal;
+};
+
+Path boost_a_star_shortest_path(const WeightedDiGraph& graph, const Vertex& start, const Vertex& target)
+{
+  // Create property maps for predecessors and distances
+  std::vector<Vertex> predecessors(num_vertices(graph));
+  std::vector<int> distances(num_vertices(graph));
+
+  // Run A* search
+  // manhattan_distance_heuristic heuristic(graph, target);
+  euclidean_distance_heuristic heuristic(graph, target);
+  try
+  {
+    // call astar named parameter interface
+    boost::astar_search_tree(
+        graph,
+        start,
+        heuristic,
+        predecessor_map(boost::make_iterator_property_map(predecessors.begin(), get(boost::vertex_index, graph)))
+            .visitor(astar_goal_visitor(target)));
+  } catch (found_goal)
+  {  // found a path to the goal
+    auto path = extract_path(predecessors, target, start);
+    std::reverse(path.begin(), path.end());  // TODO: Why is it reversed resp. why Dijkstra isn't reversed?
+    return path;
+  }
+
+  std::ostringstream message;
+  message << "Unable to find path from " << start << " to " << target << std::endl;
+  throw std::runtime_error(message.str());
 }
 
 float path_length(const WeightedDiGraph& graph, const Path& path)
@@ -296,7 +388,7 @@ WeightedDiGraph MapGraphLoader::readFile()
       if (isVertexPassable(value))
       {
         size_t currentVertexIndex = *mapPositionToVertexIndex[row][column];
-        loadedGraph.m_vertices[currentVertexIndex].m_property.position = {double(row), double(column)};
+        loadedGraph.m_vertices[currentVertexIndex].m_property.position = {float(row), float(column)};
         // Add edge to the left
         if (column > 0 && isVertexPassable(map[row][column - 1]))
         {
