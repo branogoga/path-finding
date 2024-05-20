@@ -21,7 +21,8 @@ std::vector<JobRequest> DefaultScenarioLoader::getjobRequests() const
   return {JobRequest(0, 2)};
 }
 
-std::string readVersion(std::ifstream& file, const std::string expectedParameterTitle, const std::string& filename)
+std::string readVersion(
+    std::ifstream& file, const std::string expectedParameterTitle, const std::filesystem::path& filename)
 {
   std::string line;
   std::getline(file, line);
@@ -39,7 +40,7 @@ std::string readVersion(std::ifstream& file, const std::string expectedParameter
   return stringValue;
 }
 
-JobRequest FileScenarioLoader::parseJobRequest(const std::string& line, const std::string& filename)
+JobRequest FileScenarioLoader::parseJobRequest(const std::string& line, const std::filesystem::path& filename)
 {
   const std::vector<std::string> lineParts = split(line, {' ', '\t'});
 
@@ -95,7 +96,7 @@ JobRequest FileScenarioLoader::parseJobRequest(const std::string& line, const st
   return JobRequest(*startVertex, *endVertex);
 }
 
-FileScenarioLoader::FileScenarioLoader(const std::string& filename)
+FileScenarioLoader::FileScenarioLoader(const std::filesystem::path& filename)
 {
   std::ifstream file(filename);
   if (!file.is_open())

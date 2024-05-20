@@ -1,5 +1,6 @@
 #pragma once
 
+#include <filesystem>
 #include <string>
 #include <vector>
 
@@ -32,13 +33,13 @@ class DefaultScenarioLoader : public ScenarioLoader
 class FileScenarioLoader : public ScenarioLoader
 {
  public:
-  FileScenarioLoader(const std::string& filename);
+  FileScenarioLoader(const std::filesystem::path& filename);
 
   WeightedDiGraph getGraph() const override;
   std::vector<JobRequest> getjobRequests() const override;
 
  private:
-  JobRequest parseJobRequest(const std::string& line, const std::string& filename);
+  JobRequest parseJobRequest(const std::string& line, const std::filesystem::path& filename);
 
   std::vector<JobRequest> jobRequests;
   std::unique_ptr<MapGraphLoader> graphLoader;
