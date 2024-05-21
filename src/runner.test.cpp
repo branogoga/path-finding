@@ -74,12 +74,13 @@ TEST(
   const Vertex initialVertex = 0;
   Runner runner(graph, initialVertex);
   runner.travel({2, 3}, true);
-  ASSERT_EQ(runner.getLastVisitedVertex(), 2);
-  ASSERT_EQ(runner.getDestinationVertex(), 3);
-  ASSERT_EQ(runner.getPosition(), graph.m_vertices[2].m_property.position);
-  ASSERT_EQ(runner.getPath(), Path({2, 3}));
-  ASSERT_TRUE(runner.isTraveling());
-  ASSERT_FALSE(runner.isInDestination());
+  EXPECT_EQ(runner.getLastVisitedVertex(), 2);
+  EXPECT_EQ(runner.getDestinationVertex(), 3);
+  EXPECT_FLOAT_EQ(runner.getPosition().x, graph.m_vertices[2].m_property.position.x);
+  EXPECT_FLOAT_EQ(runner.getPosition().y, graph.m_vertices[2].m_property.position.y);
+  EXPECT_EQ(runner.getPath(), Path({2, 3}));
+  EXPECT_TRUE(runner.isTraveling());
+  EXPECT_FALSE(runner.isInDestination());
 }
 
 // TODO: implement and test advance() to step over the path
