@@ -76,8 +76,8 @@ TEST(
   runner.travel({2, 3}, true);
   EXPECT_EQ(runner.getLastVisitedVertex(), 2);
   EXPECT_EQ(runner.getDestinationVertex(), 3);
-  EXPECT_NEAR(runner.getPosition().x, graph.m_vertices[2].m_property.position.x, 1E+03);
-  EXPECT_NEAR(runner.getPosition().y, graph.m_vertices[2].m_property.position.y, 1E+03);
+  EXPECT_NEAR(runner.getPosition().x, graph.m_vertices[2].m_property.position.x, 1E-03);
+  EXPECT_NEAR(runner.getPosition().y, graph.m_vertices[2].m_property.position.y, 1E-03);
   EXPECT_EQ(runner.getPath(), Path({2, 3}));
   EXPECT_TRUE(runner.isTraveling());
   EXPECT_FALSE(runner.isInDestination());
