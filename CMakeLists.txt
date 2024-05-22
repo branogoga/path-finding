@@ -33,6 +33,8 @@ set(SOURCES
         src/runner.h 
         src/scenario.cpp 
         src/scenario.h 
+        src/sequence.cpp 
+        src/sequence.h 
         src/simulation.cpp 
         src/simulation.h 
         src/strings.cpp 
@@ -69,6 +71,7 @@ add_executable(
         src/graphviz.test.cpp
         src/runner.test.cpp
         src/scenario.test.cpp
+        src/sequence.test.cpp
         src/simulation.test.cpp
         src/strings.test.cpp
         ${SOURCES}
