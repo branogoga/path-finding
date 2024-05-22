@@ -81,6 +81,7 @@ void Runner::travel(const Path& trajectory, bool allowTeleport)
       if (allowTeleport)
       {
         lastVisitedVertex = path[0];
+        position = graph[lastVisitedVertex].position;
       }
       else
       {
