@@ -3,7 +3,10 @@
 #include <iostream>
 
 Simulation::Simulation(
-    const std::vector<JobRequest>& jobRequests, const WeightedDiGraph& graph, unsigned numberOfRunners)
+    const std::vector<JobRequest>& jobRequests,
+    const WeightedDiGraph& graph,
+    unsigned numberOfRunners,
+    ShortestPathCalculator shortestPathStrategy)
     : newJobRequests(
         jobRequests.rbegin(), jobRequests.rend())  // Revert the list, so that we can quickly pop first job from back
     , jobAssignments(numberOfRunners, std::nullopt)
@@ -11,6 +14,7 @@ Simulation::Simulation(
     , vertexLocks(graph.m_vertices.size(), std::nullopt)
     , time(0)
     , someRunnerMovedInLastStep(true)
+    , shortestPathStrategy(shortestPathStrategy)
 {
   // Create empty runners at initial position
   for (unsigned i = 0; i < numberOfRunners; ++i)
@@ -49,8 +53,7 @@ void Simulation::assignNextJobToRunner(unsigned runnerId)
     auto jobRequest = newJobRequests.back();
     newJobRequests.pop_back();
     jobAssignments[runnerId] = jobRequest;
-    // const auto& path = boost_dijkstra_shortest_path(graph, jobRequest.startVertex, jobRequest.endVertex);
-    const auto& path = boost_a_star_shortest_path(graph, jobRequest.startVertex, jobRequest.endVertex);
+    const auto& path = shortestPathStrategy(graph, jobRequest.startVertex, jobRequest.endVertex);
     unlockVertex(runners[runnerId].getLastVisitedVertex());
     runners[runnerId].travel(path, true);
     bool isLocked = lockVertex(runners[runnerId].getLastVisitedVertex(), runnerId);

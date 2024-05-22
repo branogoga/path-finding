@@ -8,7 +8,11 @@ class Simulation
 {
  public:
   Simulation() = delete;
-  Simulation(const std::vector<JobRequest> &jobRequests, const WeightedDiGraph &graph, unsigned numberOfRunners = 0);
+  Simulation(
+      const std::vector<JobRequest> &jobRequests,
+      const WeightedDiGraph &graph,
+      unsigned numberOfRunners = 0,
+      ShortestPathCalculator shortestPathStrategy = boost_a_star_shortest_path);
 
   void advance();
 
@@ -48,4 +52,5 @@ class Simulation
 
   unsigned time;
   bool someRunnerMovedInLastStep;
+  ShortestPathCalculator shortestPathStrategy;
 };
