@@ -7,8 +7,8 @@
 TEST(Point2D, equality)
 {
   Point2D point({0.3f, 1.7f});
-  const float smallDelta = 1E-05f;
-  const float tinyDelta = 1E-06f;
+  const float smallDelta = 10.0f * std::numeric_limits<float>::epsilon();
+  const float tinyDelta = 0.1f * std::numeric_limits<float>::epsilon();
   EXPECT_TRUE(point == Point2D({0.3f, 1.7f}));
   EXPECT_FALSE(point == Point2D({0.3f + smallDelta, 1.7f}));
   EXPECT_FALSE(point == Point2D({0.3f - smallDelta, 1.7f}));
