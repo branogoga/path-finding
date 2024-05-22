@@ -76,6 +76,10 @@ TEST(
   runner.travel({2, 3}, true);
   EXPECT_EQ(runner.getLastVisitedVertex(), 2);
   EXPECT_EQ(runner.getDestinationVertex(), 3);
+  for (const auto vertex : graph.m_vertices)
+  {
+    std::cerr << vertex.m_property.position << std::endl;
+  }
   EXPECT_NEAR(runner.getPosition().x, graph.m_vertices[2].m_property.position.x, 1E-03);
   EXPECT_NEAR(runner.getPosition().y, graph.m_vertices[2].m_property.position.y, 1E-03);
   EXPECT_EQ(runner.getPath(), Path({2, 3}));
