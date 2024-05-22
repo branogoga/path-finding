@@ -227,6 +227,14 @@ std::vector<Vertex> intersection(const Path& path1, const Path& path2)
 WeightedDiGraph DefaultGraphLoader::getGraph() const
 {
   WeightedDiGraph graph(4);
+
+  for (size_t index = 0; index < graph.m_vertices.size(); ++index)
+  {
+    float x = (float)index;
+    float y = (float)std::pow(-1, index) * (index + 1);
+    graph.m_vertices[index].m_property.position = {x, y};
+  }
+
   add_edge(0, 1, 2.0f, graph);
   add_edge(0, 2, 3.0f, graph);
   add_edge(1, 2, 1.0f, graph);

@@ -9,6 +9,10 @@ TEST(DefaultGraphLoader, creates_graph_with_4_vertices)
   DefaultGraphLoader loader;
   const auto graph = loader.getGraph();
   ASSERT_EQ(graph.m_vertices.size(), 4);
+  EXPECT_EQ(graph[0].position, Point2D({0.0, +1.0}));
+  EXPECT_EQ(graph[1].position, Point2D({1.0, -2.0}));
+  EXPECT_EQ(graph[2].position, Point2D({2.0, +3.0}));
+  EXPECT_EQ(graph[3].position, Point2D({3.0, -4.0}));
 }
 
 TEST(MapGraphLoader, loads_test_data)
@@ -17,7 +21,6 @@ TEST(MapGraphLoader, loads_test_data)
       std::filesystem::path(std::string(PROJECT_ROOT_DIR) + "/data/sample_test/test.map").make_preferred().string());
   const auto graph = loader.getGraph();
   ASSERT_EQ(graph.m_vertices.size(), 3);
-  // ASSERT_EQ(graph.m_edges.size(), 3);
 }
 
 TEST(intersection, returns_all_shared_vertices_of_the_paths)
