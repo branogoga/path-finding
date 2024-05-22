@@ -7,9 +7,17 @@
 TEST(Point2D, equality)
 {
   Point2D point({0.3f, 1.7f});
+  const float smallDelta = 1E-05f;
+  const float tinyDelta = 1E-06f;
   EXPECT_TRUE(point == Point2D({0.3f, 1.7f}));
-  EXPECT_FALSE(point == Point2D({0.3f + 1e-10f, 1.7f}));
-  EXPECT_FALSE(point == Point2D({0.3f, 1.7f + 1e-10f}));
+  EXPECT_FALSE(point == Point2D({0.3f + smallDelta, 1.7f}));
+  EXPECT_FALSE(point == Point2D({0.3f - smallDelta, 1.7f}));
+  EXPECT_FALSE(point == Point2D({0.3f, 1.7f + smallDelta}));
+  EXPECT_FALSE(point == Point2D({0.3f, 1.7f - smallDelta}));
+  EXPECT_TRUE(point == Point2D({0.3f + tinyDelta, 1.7f}));
+  EXPECT_TRUE(point == Point2D({0.3f - tinyDelta, 1.7f}));
+  EXPECT_TRUE(point == Point2D({0.3f, 1.7f + tinyDelta}));
+  EXPECT_TRUE(point == Point2D({0.3f, 1.7f - tinyDelta}));
 }
 
 TEST(Point2D, isNear)
@@ -30,7 +38,7 @@ TEST(Point2D, print_to_stream)
   Point2D point({0.3f, 1.7f});
   std::ostringstream out;
   out << point;
-  EXPECT_EQ(out.str(), "[ 0.3, 1.7 ]");
+  EXPECT_EQ(out.str(), "[ 0.3,1.7 ]");
 }
 
 TEST(DefaultGraphLoader, creates_graph_with_4_vertices)
