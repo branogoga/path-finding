@@ -70,14 +70,15 @@ TEST(LinearSequence, step_negative_integer)
 
 TEST(LinearSequence, step_float)
 {
+  const float precision = 1E-03f;
   LinearSequence<float> sequence(0.3f, -0.1f);
-  EXPECT_EQ(sequence(), +0.3f);
-  EXPECT_EQ(sequence(), +0.2f);
-  EXPECT_EQ(sequence(), +0.1f);
-  EXPECT_EQ(sequence(), 0.0f);
-  EXPECT_EQ(sequence(), -0.1f);
-  EXPECT_EQ(sequence(), -0.2f);
-  EXPECT_EQ(sequence(), -0.3f);
+  EXPECT_NEAR(sequence(), +0.3f, precision);
+  EXPECT_NEAR(sequence(), +0.2f, precision);
+  EXPECT_NEAR(sequence(), +0.1f, precision);
+  EXPECT_NEAR(sequence(), 0.0f, precision);
+  EXPECT_NEAR(sequence(), -0.1f, precision);
+  EXPECT_NEAR(sequence(), -0.2f, precision);
+  EXPECT_NEAR(sequence(), -0.3f, precision);
 }
 
 TEST(AlternateSequence, default_int)

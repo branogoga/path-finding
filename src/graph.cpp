@@ -9,6 +9,13 @@
 #include <optional>
 #include <queue>
 
+#include "sequence.h"
+
+bool isNear(const Point2D& p1, const Point2D& p2, const float precision)
+{
+  return std::abs(p2.x - p1.x) < precision && std::abs(p2.y - p1.y) < precision;
+}
+
 bool operator==(const Point2D& p1, const Point2D& p2)
 {
   return p1.x == p2.x && p1.y == p2.y;
@@ -228,10 +235,14 @@ WeightedDiGraph DefaultGraphLoader::getGraph() const
 {
   WeightedDiGraph graph(4);
 
+  LinearSequence<float> linearSequence;
+  AlternateSequence<float> alternateSequence;
+
   for (size_t index = 0; index < graph.m_vertices.size(); ++index)
   {
-    float x = (float)index;
-    float y = (float)std::pow(-1, index) * (index + 1);
+    float v = linearSequence();
+    float x = v;
+    float y = alternateSequence() * (v + 1);
     graph.m_vertices[index].m_property.position = {x, y};
   }
 
