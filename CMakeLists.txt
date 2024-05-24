@@ -29,6 +29,8 @@ set(SOURCES
         src/graph.h 
         src/graphviz.cpp 
         src/graphviz.h 
+        src/geometry.cpp 
+        src/geometry.h 
         src/runner.cpp 
         src/runner.h 
         src/scenario.cpp 
@@ -68,6 +70,7 @@ add_executable(
         src/collision.test.cpp
         src/color.test.cpp
         src/graph.test.cpp
+        src/geometry.test.cpp
         src/graphviz.test.cpp
         src/runner.test.cpp
         src/scenario.test.cpp

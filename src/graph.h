@@ -1,20 +1,10 @@
-#ifndef PATHFINDING_GRAPH_H
-#define PATHFINDING_GRAPH_H
+#pragma once
 
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/astar_search.hpp>
 #include <string>
 
-class Point2D
-{
- public:
-  float x;
-  float y;
-};
-
-bool operator==(const Point2D& p1, const Point2D& p2);
-bool isNear(const Point2D& p1, const Point2D& p2, const float precision);
-std::ostream& operator<<(std::ostream& stream, const Point2D& point);
+#include "geometry.h"
 
 class VertexNode
 {
@@ -110,5 +100,3 @@ class MapGraphLoader : public GraphLoader
 
   WeightedDiGraph graph;
 };
-
-#endif  // PATHFINDING_GRAPH_H
