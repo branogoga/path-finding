@@ -109,45 +109,39 @@ Path boost_dijkstra_shortest_path(const WeightedDiGraph& graph, const Vertex& st
   return std::vector<Vertex>(path.rbegin(), path.rend());
 }
 
-// Define heuristic function
-class manhattan_distance_heuristic : public boost::astar_heuristic<WeightedDiGraph, Distance>
+Path dijkstra_shortest_path(const WeightedDiGraph& graph, const Vertex& start, const Vertex& target)
 {
- public:
-  manhattan_distance_heuristic(WeightedDiGraph graph, Vertex goal) : m_graph(graph), m_goal(goal)
-  {
-  }
+  std::vector<Vertex> predecessor = dijkstra_shortest_paths(graph, start);
+  auto path = extract_path(predecessor, target, start);
+  return std::vector<Vertex>(path.rbegin(), path.rend());
+}
 
-  Distance operator()(Vertex v)
-  {
-    // Example heuristic: Manhattan distance between v and the goal
-    Distance dx = std::abs(m_graph[m_goal].position.x - m_graph[v].position.x);
-    Distance dy = std::abs(m_graph[m_goal].position.y - m_graph[v].position.y);
-    return dx + dy;
-  }
+// Define heuristic function
+manhattan_distance_heuristic::manhattan_distance_heuristic(WeightedDiGraph graph, Vertex goal)
+    : m_graph(graph), m_goal(goal)
+{
+}
 
- private:
-  WeightedDiGraph m_graph;
-  Vertex m_goal;
-};
+Distance manhattan_distance_heuristic::operator()(Vertex v)
+{
+  // Example heuristic: Manhattan distance between v and the goal
+  Distance dx = std::abs(m_graph[m_goal].position.x - m_graph[v].position.x);
+  Distance dy = std::abs(m_graph[m_goal].position.y - m_graph[v].position.y);
+  return dx + dy;
+}
 
 // euclidean distance heuristic
-class euclidean_distance_heuristic : public boost::astar_heuristic<WeightedDiGraph, Distance>
+euclidean_distance_heuristic::euclidean_distance_heuristic(WeightedDiGraph graph, Vertex goal)
+    : m_graph(graph), m_goal(goal)
 {
- public:
-  euclidean_distance_heuristic(WeightedDiGraph graph, Vertex goal) : m_graph(graph), m_goal(goal)
-  {
-  }
-  Distance operator()(Vertex v)
-  {
-    Distance dx = m_graph[m_goal].position.x - m_graph[v].position.x;
-    Distance dy = m_graph[m_goal].position.y - m_graph[v].position.y;
-    return ::sqrt(dx * dx + dy * dy);
-  }
+}
 
- private:
-  WeightedDiGraph m_graph;
-  Vertex m_goal;
-};
+Distance euclidean_distance_heuristic::operator()(Vertex v)
+{
+  Distance dx = m_graph[m_goal].position.x - m_graph[v].position.x;
+  Distance dy = m_graph[m_goal].position.y - m_graph[v].position.y;
+  return ::sqrt(dx * dx + dy * dy);
+}
 
 struct found_goal {
 };  // exception for termination
@@ -197,6 +191,61 @@ Path boost_a_star_shortest_path(const WeightedDiGraph& graph, const Vertex& star
   std::ostringstream message;
   message << "Unable to find path from " << start << " to " << target << std::endl;
   throw std::runtime_error(message.str());
+}
+
+Path a_star_shortest_path(
+    const WeightedDiGraph& graph,
+    const Vertex& start,
+    const Vertex& goal /*, std::function<Distance(Vertex)> heuristic*/)
+{
+  auto heuristic = euclidean_distance_heuristic(graph, goal);
+
+  // Property maps for predecessors and distances
+  std::vector<Vertex> predecessors(num_vertices(graph));
+  std::vector<Distance> distances(num_vertices(graph), std::numeric_limits<Distance>::max());
+
+  // Priority queue for open list
+  typedef std::pair<Distance, Vertex> Pair;
+  std::priority_queue<Pair, std::vector<Pair>, std::greater<Pair>> priorityQueue;
+
+  // Initialize start vertex
+  priorityQueue.push(std::make_pair(0.0f, start));
+  distances[start] = 0;
+
+  while (!priorityQueue.empty())
+  {
+    Vertex current_vertex = priorityQueue.top().second;
+    priorityQueue.pop();
+
+    if (current_vertex == goal) break;
+
+    boost::graph_traits<WeightedDiGraph>::out_edge_iterator ei, ei_end;
+    for (tie(ei, ei_end) = out_edges(current_vertex, graph); ei != ei_end; ++ei)
+    {
+      Vertex next_vertex = target(*ei, graph);
+      Distance weight = boost::get(boost::edge_weight_t(), graph, *ei);
+      Distance tentative_distance = distances[current_vertex] + weight;
+
+      if (tentative_distance < distances[next_vertex])
+      {
+        distances[next_vertex] = tentative_distance;
+        predecessors[next_vertex] = current_vertex;
+        Distance priority = tentative_distance + heuristic(next_vertex);
+        priorityQueue.push(std::make_pair(priority, next_vertex));
+      }
+    }
+  }
+
+  // Reconstruct the shortest path
+  std::vector<Vertex> path;
+  for (Vertex v = goal; v != start; v = predecessors[v])
+  {
+    path.push_back(v);
+  }
+  path.push_back(start);
+  std::reverse(path.begin(), path.end());
+
+  return path;
 }
 
 float path_length(const WeightedDiGraph& graph, const Path& path)

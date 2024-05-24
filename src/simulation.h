@@ -12,7 +12,7 @@ class Simulation
       const std::vector<JobRequest> &jobRequests,
       const WeightedDiGraph &graph,
       unsigned numberOfRunners = 0,
-      ShortestPathCalculator shortestPathStrategy = boost_a_star_shortest_path);
+      ShortestPathCalculator shortestPathStrategy = a_star_shortest_path);
 
   void advance();
 
