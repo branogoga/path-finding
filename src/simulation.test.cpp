@@ -49,17 +49,17 @@ class SimulationStub : public Simulation
 
   bool isVertexFreeForRunner(const Vertex& vertex, unsigned runnerId) const
   {
-    return Simulation::isVertexFreeForRunner(vertex, runnerId);
+    return constraints.isVertexFreeForRunner(vertex, runnerId);
   }
 
   bool lockVertex(const Vertex& vertex, unsigned runnerId)
   {
-    return Simulation::lockVertex(vertex, runnerId);
+    return constraints.lockVertex(vertex, runnerId);
   }
 
   void unlockVertex(const Vertex& vertex)
   {
-    Simulation::unlockVertex(vertex);
+    constraints.unlockVertex(vertex);
   }
 };
 

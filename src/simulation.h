@@ -1,5 +1,6 @@
 #pragma once
 
+#include "constraints.h"
 #include "graph.h"
 #include "runner.h"
 #include "scenario.h"
@@ -34,17 +35,13 @@ class Simulation
   void assignNextJobToRunner(unsigned runnerId);
   void finishRunnerJob(unsigned runnerId);
 
-  bool isVertexFreeForRunner(const Vertex &vertex, unsigned runnerId) const;
-  bool lockVertex(const Vertex &vertex, unsigned runnerId);
-  void unlockVertex(const Vertex &vertex);
-
   bool areAllRunnersFinished() const;
+
+  Constraints constraints;
 
  private:
   std::vector<Runner> runners;
   WeightedDiGraph graph;
-  std::vector<std::optional<unsigned>> vertexLocks;
-  // TODO: edge locks
 
   std::vector<JobRequest> newJobRequests;
   std::vector<std::optional<JobRequest>> jobAssignments;

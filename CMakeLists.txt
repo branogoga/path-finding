@@ -23,6 +23,8 @@ set(TARGET_NAME, path-finding)
 set(SOURCES 
         src/collision.cpp 
         src/collision.h 
+        src/constraints.cpp 
+        src/constraints.h 
         src/color.cpp 
         src/color.h 
         src/graph.cpp 
@@ -68,6 +70,7 @@ add_executable(
         path-finding-test
         src/main.test.cpp
         src/collision.test.cpp
+        src/constraints.test.cpp
         src/color.test.cpp
         src/graph.test.cpp
         src/geometry.test.cpp

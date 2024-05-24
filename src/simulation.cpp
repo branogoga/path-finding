@@ -11,8 +11,8 @@ Simulation::Simulation(
         jobRequests.rbegin(), jobRequests.rend())  // Revert the list, so that we can quickly pop first job from back
     , jobAssignments(numberOfRunners, std::nullopt)
     , graph(graph)
-    , vertexLocks(graph.m_vertices.size(), std::nullopt)
     , time(0)
+    , constraints(graph)
     , someRunnerMovedInLastStep(true)
     , shortestPathStrategy(shortestPathStrategy)
 {
@@ -54,15 +54,15 @@ void Simulation::assignNextJobToRunner(unsigned runnerId)
     newJobRequests.pop_back();
     jobAssignments[runnerId] = jobRequest;
     const auto& path = shortestPathStrategy(graph, jobRequest.startVertex, jobRequest.endVertex);
-    unlockVertex(runners[runnerId].getLastVisitedVertex());
+    constraints.unlockVertex(runners[runnerId].getLastVisitedVertex());
     runners[runnerId].travel(path, true);
-    bool isLocked = lockVertex(runners[runnerId].getLastVisitedVertex(), runnerId);
+    bool isLocked = constraints.lockVertex(runners[runnerId].getLastVisitedVertex(), runnerId);
     if (!isLocked)
     {
       std::ostringstream message;
       message << "Failed to assign new job to runner '" << runnerId << "': Vertex "
               << runners[runnerId].getLastVisitedVertex() << " is already locked to runner "
-              << *vertexLocks[runners[runnerId].getLastVisitedVertex()];
+              << *constraints.getVertexLock(runners[runnerId].getLastVisitedVertex());
       throw std::runtime_error(message.str());
     }
     std::cout << time << " - Runner " << runnerId << " - assigned new job " << jobRequest.startVertex << " > "
@@ -103,14 +103,14 @@ void Simulation::moveRunners()
   for (unsigned runnerId = 0; runnerId < runners.size(); ++runnerId)
   {
     auto& runner = runners[runnerId];
-    if (lockVertex(runner.getNextVertex(), runnerId))
+    if (constraints.lockVertex(runner.getNextVertex(), runnerId))
     {
       const auto previousVertex = runner.getLastVisitedVertex();
       runner.advance();
       someRunnerMovedInLastStep = true;
       if (previousVertex != runner.getLastVisitedVertex())
       {
-        unlockVertex(previousVertex);
+        constraints.unlockVertex(previousVertex);
       }
       std::cout << time << " - Runner " << runnerId << " moved to vertex " << runner.getLastVisitedVertex()
                 << " position " << runner.getPosition() << std::endl;
@@ -119,7 +119,7 @@ void Simulation::moveRunners()
     {
       std::cout << time << " - Runner " << runnerId << " stays at vertex " << runner.getLastVisitedVertex()
                 << " position " << runner.getPosition() << ". Next vertex " << runner.getNextVertex()
-                << " is locked to runner" << *vertexLocks[runner.getNextVertex()] << std::endl;
+                << " is locked to runner" << *constraints.getVertexLock(runner.getNextVertex()) << std::endl;
     }
   }
 }
@@ -156,26 +156,6 @@ bool Simulation::isDeadlock() const
 unsigned Simulation::getTime() const
 {
   return time;
-}
-
-bool Simulation::isVertexFreeForRunner(const Vertex& vertex, unsigned runnerId) const
-{
-  return vertexLocks[vertex] == std::nullopt || vertexLocks[vertex] == runnerId;
-}
-
-bool Simulation::lockVertex(const Vertex& vertex, unsigned runnerId)
-{
-  if (!isVertexFreeForRunner(vertex, runnerId))
-  {
-    return false;
-  }
-  vertexLocks[vertex] = runnerId;
-  return true;
-}
-
-void Simulation::unlockVertex(const Vertex& vertex)
-{
-  vertexLocks[vertex] = std::nullopt;
 }
 
 const std::vector<JobRequest>& Simulation::getNewJobRequests() const
