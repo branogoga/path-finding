@@ -5,7 +5,6 @@
 
 #include "graph.h"
 
-
 class Constraints
 {
  public:
