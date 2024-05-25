@@ -107,7 +107,10 @@ void Simulation::moveRunners()
     {
       const auto previousVertex = runner.getLastVisitedVertex();
       runner.advance();
-      someRunnerMovedInLastStep = true;
+      if (previousVertex != runner.getLastVisitedVertex())
+      {
+        someRunnerMovedInLastStep = true;
+      }
       if (previousVertex != runner.getLastVisitedVertex())
       {
         constraints.unlockVertex(previousVertex);
