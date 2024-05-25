@@ -144,7 +144,7 @@ int main()
       SampleTest,
       SituationsColisionCrossCrossThrough,
       SituationsColisionCrossSwapPosition,
-      // SituationsStepOver,
+      SituationsStepOver,
       // SituationsSwapOrder,
       Maze_128x128_1_Even_1,
       Maze_128x128_2_Even_1,
