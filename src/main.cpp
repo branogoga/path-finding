@@ -35,7 +35,27 @@ const std::filesystem::path DataDirectory = ProjectRootDirectory / "data";
 const std::filesystem::path OutputDirectory = ProjectRootDirectory / "output";
 
 const std::filesystem::path SampleTest = std::filesystem::path("sample_test") / "test.scen";
+const std::filesystem::path SituationsColisionCrossCrossThrough =
+    std::filesystem::path("situations") / std::filesystem::path("colision-cross") / "cross-through.scen";
+const std::filesystem::path SituationsColisionCrossSwapPosition =
+    std::filesystem::path("situations") / std::filesystem::path("colision-cross") / "swap-position.scen";
+const std::filesystem::path SituationsStepOver =
+    std::filesystem::path("situations") / std::filesystem::path("step-over") / "step-over.scen";
+const std::filesystem::path SituationsSwapOrder =
+    std::filesystem::path("situations") / std::filesystem::path("swap-order") / "swap-order.scen";
 const std::filesystem::path Maze_32x32_2_Even_1 = std::filesystem::path("maze-32-32-2") / "maze-32-32-2-even-1.scen";
+const std::filesystem::path Maze_128x128_1_Even_1 =
+    std::filesystem::path("maze-128-128-1") / "maze-128-128-1-even-1.scen";
+const std::filesystem::path Maze_128x128_2_Even_1 =
+    std::filesystem::path("maze-128-128-2") / "maze-128-128-2-even-1.scen";
+const std::filesystem::path Warehouse_10_20_10_2_1_Even_1 =
+    std::filesystem::path("warehouse-10-20-10-2-1") / "warehouse-10-20-10-2-1-even-1.scen";
+const std::filesystem::path Warehouse_10_20_10_2_2_Even_1 =
+    std::filesystem::path("warehouse-10-20-10-2-2") / "warehouse-10-20-10-2-2-even-1.scen";
+const std::filesystem::path Warehouse_20_40_10_2_1_Even_1 =
+    std::filesystem::path("warehouse-20-40-10-2-1") / "warehouse-20-40-10-2-1-even-1.scen";
+const std::filesystem::path Warehouse_20_40_10_2_2_Even_1 =
+    std::filesystem::path("warehouse-20-40-10-2-2") / "warehouse-20-40-10-2-2-even-1.scen";
 
 std::vector<Path> calculate_shortest_paths(
     const std::vector<JobRequest> &jobRequests, const WeightedDiGraph &graph, const unsigned numberOfRobots)
@@ -71,15 +91,11 @@ void print_paths(const std::vector<Path> &paths, const WeightedDiGraph &graph)
   }
 }
 
-int main()
+void run_scenario(const std::filesystem::path &scenarioFile)
 {
-  std::cout << "Hello Path Finding " << getVersion() << "!" << std::endl;
-  std::filesystem::create_directory(OutputDirectory);
-
   try
   {
-    // DefaultScenarioLoader scenarioLoader;
-    const std::filesystem::path scenarioFile = Maze_32x32_2_Even_1;
+    std::cout << "Processing scenario " << scenarioFile << std::endl;
     FileScenarioLoader scenarioLoader(DataDirectory / scenarioFile);
     const auto jobRequests = scenarioLoader.getjobRequests();
     auto graph = scenarioLoader.getGraph();
@@ -115,6 +131,29 @@ int main()
   } catch (std::exception &exception)
   {
     std::cerr << "Uncaught exception: " << exception.what() << std::endl;
+  }
+}
+
+int main()
+{
+  std::cout << "Hello Path Finding " << getVersion() << "!" << std::endl;
+  std::filesystem::create_directory(OutputDirectory);
+
+  std::vector<std::filesystem::path> scenarioFiles = {// SampleTest,
+                                                      // SituationsColisionCrossCrossThrough,
+                                                      // SituationsColisionCrossSwapPosition,
+                                                      // SituationsStepOver,
+                                                      // SituationsSwapOrder,
+                                                      Maze_128x128_1_Even_1,
+                                                      Maze_128x128_2_Even_1,
+                                                      Maze_32x32_2_Even_1,
+                                                      Warehouse_10_20_10_2_1_Even_1,
+                                                      Warehouse_10_20_10_2_2_Even_1,
+                                                      Warehouse_20_40_10_2_1_Even_1,
+                                                      Warehouse_20_40_10_2_2_Even_1};
+  for (const auto &scenarioFile : scenarioFiles)
+  {
+    run_scenario(scenarioFile);
   }
 
   return 0;
