@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "graph.h"
+#include "runner.h"
 
 class Constraints
 {
@@ -11,12 +12,12 @@ class Constraints
   Constraints() = delete;
   Constraints(const WeightedDiGraph &graph);
 
-  bool isVertexFreeForRunner(const Vertex &vertex, unsigned runnerId) const;
-  bool lockVertex(const Vertex &vertex, unsigned runnerId);
+  bool isVertexFreeForRunner(const Vertex &vertex, RunnerId runnerId) const;
+  bool lockVertex(const Vertex &vertex, RunnerId runnerId);
   void unlockVertex(const Vertex &vertex);
-  const std::optional<unsigned> &getVertexLock(const Vertex &vertex) const;
+  const std::optional<RunnerId> &getVertexLock(const Vertex &vertex) const;
 
  private:
-  std::vector<std::optional<unsigned>> vertexLocks;
+  std::vector<std::optional<RunnerId>> vertexLocks;
   // TODO: edge locks
 };

@@ -31,9 +31,9 @@ class Simulation
   void finishRunnerJobs();
   void moveRunners();
 
-  bool isJobAssignedToRunner(unsigned runnerId) const;
-  void assignNextJobToRunner(unsigned runnerId);
-  void finishRunnerJob(unsigned runnerId);
+  bool isJobAssignedToRunner(RunnerId runnerId) const;
+  void assignNextJobToRunner(RunnerId runnerId);
+  void finishRunnerJob(RunnerId runnerId);
 
   bool areAllRunnersFinished() const;
 

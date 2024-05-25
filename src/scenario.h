@@ -10,10 +10,10 @@ class JobRequest
 {
  public:
   JobRequest() = delete;
-  JobRequest(unsigned start, unsigned end);
+  JobRequest(Vertex start, Vertex end);
 
-  unsigned startVertex;
-  unsigned endVertex;
+  Vertex startVertex;
+  Vertex endVertex;
 };
 
 class ScenarioLoader

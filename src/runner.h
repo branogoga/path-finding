@@ -2,13 +2,15 @@
 
 #include "graph.h"
 
+typedef unsigned RunnerId;
+
 class Runner
 {
  public:
   Runner() = delete;
   Runner(WeightedDiGraph graph, Vertex initialPosition);
 
-  unsigned getId() const;
+  RunnerId getId() const;
   const Path& getPath() const;
   Path getRemainingPath() const;
   const Point2D& getPosition() const;
@@ -26,7 +28,7 @@ class Runner
   // TODO: notify observers when the travel starts
 
  private:
-  unsigned id;
+  RunnerId id;
   WeightedDiGraph graph;
   Path path;
   unsigned indexOfLastVisitedPathVertex;

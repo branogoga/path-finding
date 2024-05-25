@@ -1,6 +1,6 @@
 #include "runner.h"
 
-unsigned lastRunnerId = 0;
+RunnerId lastRunnerId = static_cast<RunnerId>(0);
 
 Runner::Runner(WeightedDiGraph graph, Vertex initialPosition)
     : id(lastRunnerId++)
@@ -12,7 +12,7 @@ Runner::Runner(WeightedDiGraph graph, Vertex initialPosition)
   position = graph.m_vertices[initialPosition].m_property.position;
 }
 
-unsigned Runner::getId() const
+RunnerId Runner::getId() const
 {
   return id;
 }

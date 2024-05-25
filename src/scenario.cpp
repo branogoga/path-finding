@@ -6,7 +6,7 @@
 
 #include "strings.h"
 
-JobRequest::JobRequest(unsigned start, unsigned end) : startVertex(start), endVertex(end)
+JobRequest::JobRequest(Vertex start, Vertex end) : startVertex(start), endVertex(end)
 {
 }
 
