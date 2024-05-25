@@ -107,7 +107,7 @@ void run_scenario(const std::filesystem::path &scenarioFile)
     Simulation simulation(jobRequests, graph, numberOfRobots);
     simulation.advance();
     const auto scenarioDirectory = std::filesystem::path(scenarioFile).remove_filename();
-    std::filesystem::create_directory(OutputDirectory / scenarioDirectory);
+    std::filesystem::create_directories(OutputDirectory / scenarioDirectory);
     write_graph_to_dot_file(OutputDirectory / scenarioDirectory / "graph.dot", graph, simulation.getRunners());
 
     while (!simulation.isFinished() && simulation.getTime() < timeout)
@@ -138,11 +138,11 @@ void run_scenario(const std::filesystem::path &scenarioFile)
 int main()
 {
   std::cout << "Hello Path Finding " << getVersion() << "!" << std::endl;
-  std::filesystem::create_directory(OutputDirectory);
+  std::filesystem::create_directories(OutputDirectory);
 
   std::vector<std::filesystem::path> scenarioFiles = {
       SampleTest,
-      // SituationsColisionCrossCrossThrough,
+      SituationsColisionCrossCrossThrough,
       // SituationsColisionCrossSwapPosition,
       // SituationsStepOver,
       // SituationsSwapOrder,
@@ -152,7 +152,8 @@ int main()
       Warehouse_10_20_10_2_1_Even_1,
       Warehouse_10_20_10_2_2_Even_1,
       Warehouse_20_40_10_2_1_Even_1,
-      Warehouse_20_40_10_2_2_Even_1};
+      Warehouse_20_40_10_2_2_Even_1,
+  };
   for (const auto &scenarioFile : scenarioFiles)
   {
     run_scenario(scenarioFile);
