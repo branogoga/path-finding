@@ -38,7 +38,7 @@ std::map<EdgeKeyType, std::string> getEdgeColors(const std::vector<Runner> &runn
   {
     const auto color = getGraphVizColor(runner.getId());
     const auto remainingPath = runner.getRemainingPath();
-    for (auto index = 0; index < remainingPath.size() - 1; ++index)
+    for (auto index = 0; !remainingPath.empty() && index < remainingPath.size() - 1; ++index)
     {
       edge_colors[{remainingPath[index], remainingPath[index + 1]}] = color;
     }
