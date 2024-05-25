@@ -112,8 +112,9 @@ void Simulation::moveRunners()
       {
         constraints.unlockVertex(previousVertex);
       }
-      std::cout << time << " - Runner " << runnerId << " moved to vertex " << runner.getLastVisitedVertex()
-                << " position " << runner.getPosition() << std::endl;
+      std::cout << time << " - Runner " << runnerId << " moved from vertex " << previousVertex << " "
+                << graph[previousVertex].position << " to vertex " << runner.getLastVisitedVertex() << " position "
+                << runner.getPosition() << std::endl;
     }
     else
     {
