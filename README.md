@@ -77,3 +77,11 @@ Check the `PROJECT_ROOT/output` directory for output.
  Convert resulting graph `.dot` file to visual `.png` image:
 
  `fdp -Tpng output/graph.dot -o output/graph.png`
+
+ or run
+
+ `./make_graph.bat`
+
+ to convert all `dot` files in repo to corresponding `png` images.
+
+ **Warning:** Converting all images can be slow depending on the number and size of the rendered graphs.
