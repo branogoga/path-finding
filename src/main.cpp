@@ -143,7 +143,7 @@ int main()
   std::vector<std::filesystem::path> scenarioFiles = {
       SampleTest,
       SituationsColisionCrossCrossThrough,
-      // SituationsColisionCrossSwapPosition,
+      SituationsColisionCrossSwapPosition,
       // SituationsStepOver,
       // SituationsSwapOrder,
       Maze_128x128_1_Even_1,
