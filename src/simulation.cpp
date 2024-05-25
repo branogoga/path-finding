@@ -65,8 +65,9 @@ void Simulation::assignNextJobToRunner(unsigned runnerId)
               << *constraints.getVertexLock(runners[runnerId].getLastVisitedVertex());
       throw std::runtime_error(message.str());
     }
-    std::cout << time << " - Runner " << runnerId << " - assigned new job " << jobRequest.startVertex << " > "
-              << jobRequest.endVertex << std::endl;
+    std::cout << time << " - Runner " << runnerId << " - assigned new job " << jobRequest.startVertex << " "
+              << graph[jobRequest.startVertex].position << " > " << jobRequest.endVertex << " "
+              << graph[jobRequest.endVertex].position << std::endl;
   }
 }
 
@@ -82,8 +83,9 @@ void Simulation::finishRunnerJob(unsigned runnerId)
   const auto jobRequest = jobAssignments[runnerId];
   jobAssignments[runnerId] = std::nullopt;
   finishedJobRequests.push_back(*jobRequest);
-  std::cout << time << " - Runner " << runnerId << " - finished job " << jobRequest->startVertex << " > "
-            << jobRequest->endVertex << std::endl;
+  std::cout << time << " - Runner " << runnerId << " - finished job " << jobRequest->startVertex << " "
+            << graph[jobRequest->startVertex].position << " > " << jobRequest->endVertex << " "
+            << graph[jobRequest->endVertex].position << std::endl;
 }
 
 void Simulation::finishRunnerJobs()
