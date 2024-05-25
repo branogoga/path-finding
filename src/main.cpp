@@ -145,7 +145,7 @@ int main()
       SituationsColisionCrossCrossThrough,
       SituationsColisionCrossSwapPosition,
       SituationsStepOver,
-      // SituationsSwapOrder,
+      SituationsSwapOrder,
       Maze_128x128_1_Even_1,
       Maze_128x128_2_Even_1,
       Maze_32x32_2_Even_1,
