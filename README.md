@@ -5,6 +5,7 @@ Comparison of different algorithms for single &amp; multi agent path finding (_w
 - arbitrary directed graph (_not restricted to grid, despite examples in data folder are mostly grids_)
 - non-negative edge weights
 - known position of the vertices
+- agent is infinitely small (when calculating collisions)
 - constant robot speed (_always travels the same speed, no acceleration / deceleration_)
 - constant robot speed on all edges (_e.g. full speed also on curved trajectories ..._)
 - time is discrete
