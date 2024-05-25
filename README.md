@@ -80,7 +80,8 @@ Check the `PROJECT_ROOT/output` directory for output.
 
  or run
 
- `./make_graph.bat`
+ `./make_graph.bat` (windows)
+ `./make_graph.sh` (linux)
 
  to convert all `dot` files in repo to corresponding `png` images.
 
