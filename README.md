@@ -9,9 +9,12 @@ Comparison of different algorithms for single &amp; multi agent path finding (_w
 - constant robot speed on all edges (_e.g. full speed also on curved trajectories ..._)
 - time is discrete
 - robot appears at the start of the path and disappears when reached the destination
+- robots are reliable, they execute orders exactly as planned
+- there is no delay in communicstion with robots
 
 **Algorithms:**
 - Dijkstra's algorithm
+- A" search
 
 ## How to run
 
