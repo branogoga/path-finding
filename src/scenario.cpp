@@ -80,16 +80,16 @@ JobRequest FileScenarioLoader::parseJobRequest(const std::string& line, const st
   if (!startVertex)
   {
     std::ostringstream message;
-    message << "Failed to open '" << filename << "': invalid format. Unable to convert map position '" << startX
-            << "', '" << startY << "' to vertex index.";
+    message << "Failed to open '" << filename << "': invalid format. Unable to convert map position ['" << startX
+            << "', '" << startY << "'] to vertex index.";
     throw std::invalid_argument(message.str());
   }
   const auto endVertex = graphLoader->convertMapPositionToVertexIndex(endY, endX);
   if (!endVertex)
   {
     std::ostringstream message;
-    message << "Failed to open '" << filename << "': invalid format. Unable to convert map position '" << startX
-            << "', '" << startY << "' to vertex index.";
+    message << "Failed to open '" << filename << "': invalid format. Unable to convert map position ['" << endX
+            << "', '" << endY << "'] to vertex index.";
     throw std::invalid_argument(message.str());
   }
 
