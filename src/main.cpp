@@ -101,7 +101,8 @@ void run_scenario(const std::filesystem::path &scenarioFile)
     auto graph = scenarioLoader.getGraph();
     print_graph_statistics(graph);
 
-    const unsigned numberOfRobots = 3;  // jobRequests.size();
+    const unsigned numberOfRobots =
+        std::min<unsigned>({3u, (unsigned)graph.m_vertices.size(), (unsigned)jobRequests.size()});
     const unsigned timeout = (unsigned)1E+06;
     Simulation simulation(jobRequests, graph, numberOfRobots);
     simulation.advance();
@@ -139,18 +140,19 @@ int main()
   std::cout << "Hello Path Finding " << getVersion() << "!" << std::endl;
   std::filesystem::create_directory(OutputDirectory);
 
-  std::vector<std::filesystem::path> scenarioFiles = {// SampleTest,
-                                                      // SituationsColisionCrossCrossThrough,
-                                                      // SituationsColisionCrossSwapPosition,
-                                                      // SituationsStepOver,
-                                                      // SituationsSwapOrder,
-                                                      Maze_128x128_1_Even_1,
-                                                      Maze_128x128_2_Even_1,
-                                                      Maze_32x32_2_Even_1,
-                                                      Warehouse_10_20_10_2_1_Even_1,
-                                                      Warehouse_10_20_10_2_2_Even_1,
-                                                      Warehouse_20_40_10_2_1_Even_1,
-                                                      Warehouse_20_40_10_2_2_Even_1};
+  std::vector<std::filesystem::path> scenarioFiles = {
+      SampleTest,
+      // SituationsColisionCrossCrossThrough,
+      // SituationsColisionCrossSwapPosition,
+      // SituationsStepOver,
+      // SituationsSwapOrder,
+      Maze_128x128_1_Even_1,
+      Maze_128x128_2_Even_1,
+      Maze_32x32_2_Even_1,
+      Warehouse_10_20_10_2_1_Even_1,
+      Warehouse_10_20_10_2_2_Even_1,
+      Warehouse_20_40_10_2_1_Even_1,
+      Warehouse_20_40_10_2_2_Even_1};
   for (const auto &scenarioFile : scenarioFiles)
   {
     run_scenario(scenarioFile);
