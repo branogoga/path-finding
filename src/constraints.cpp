@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-Constraints::Constraints(const WeightedDiGraph& graph) : locks(graph.m_vertices.size(), VertexLocksType({}))
+Constraints::Constraints(const WeightedDiGraph& graph) : locks(graph.m_vertices.size(), VertexLocksType())
 {
 }
 
