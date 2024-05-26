@@ -348,12 +348,157 @@ TEST(Constraints, unlock_vertex_called_on_vertex_that_is_not_locked_preserves_it
   EXPECT_TRUE(constraints.isVertexFreeForRunner(defaultVertex, otherRunner));
 }
 
-// TODO: does not unlock the vertex, if unlocking the other runners' lock
-// TODO: unlock, but different time interval
-// - whole interval
-// - covering the locked interval
-// - intersection with locked interval
-// - disjoint with locked interval
+TEST(Constraints, unlock_vertex_releases_all_locks_of_given_runner_on_vertex_if_called_without_specified_interval)
+{
+  DefaultGraphLoader loader;
+  WeightedDiGraph graph = loader.getGraph();
+  ConstraintsStub constraints(graph);
+  EXPECT_TRUE(constraints.lockVertex(defaultVertex, defaultRunner, 2, 3));
+  EXPECT_TRUE(constraints.lockVertex(defaultVertex, defaultRunner, 5, 7));
+  constraints.unlockVertex(defaultVertex, defaultRunner);
+  EXPECT_EQ(constraints.getVertexLock(defaultVertex, 0), std::nullopt);
+  EXPECT_TRUE(constraints.isVertexFreeForRunner(defaultVertex, defaultRunner));
+  EXPECT_TRUE(constraints.isVertexFreeForRunner(defaultVertex, otherRunner));
+}
+
+TEST(Constraints, unlock_vertex_preserves_locks_of_other_runner)
+{
+  DefaultGraphLoader loader;
+  WeightedDiGraph graph = loader.getGraph();
+  ConstraintsStub constraints(graph);
+  EXPECT_TRUE(constraints.lockVertex(defaultVertex, defaultRunner, 2, 3));
+  EXPECT_TRUE(constraints.lockVertex(defaultVertex, otherRunner, 11, 13));
+  EXPECT_TRUE(constraints.lockVertex(defaultVertex, defaultRunner, 5, 7));
+  constraints.unlockVertex(defaultVertex, defaultRunner);
+  EXPECT_EQ(constraints.getVertexLock(defaultVertex, 0), std::nullopt);
+  EXPECT_EQ(constraints.getVertexLock(defaultVertex, 11), otherRunner);
+  EXPECT_FALSE(constraints.isVertexFreeForRunner(defaultVertex, defaultRunner));
+  EXPECT_TRUE(constraints.isVertexFreeForRunner(defaultVertex, otherRunner));
+}
+
+TEST(Constraints, unlock_vertex_releases_whole_interval_if_called_with_same_interval)
+{
+  DefaultGraphLoader loader;
+  WeightedDiGraph graph = loader.getGraph();
+  ConstraintsStub constraints(graph);
+  EXPECT_TRUE(constraints.lockVertex(defaultVertex, defaultRunner, 5, 7));
+  constraints.unlockVertex(defaultVertex, defaultRunner, 5, 7);
+  const auto& vertexLocks = constraints.getVertexLocks(defaultVertex);
+  EXPECT_TRUE(vertexLocks.empty());
+  auto numberOfIntervals = vertexLocks.iterative_size();
+  EXPECT_EQ(numberOfIntervals, 0u);
+  EXPECT_TRUE(constraints.isVertexFreeForRunner(defaultVertex, defaultRunner));
+  EXPECT_TRUE(constraints.isVertexFreeForRunner(defaultVertex, otherRunner));
+}
+
+TEST(Constraints, unlock_vertex_releases_whole_interval_if_called_with_larger_interval)
+{
+  DefaultGraphLoader loader;
+  WeightedDiGraph graph = loader.getGraph();
+  ConstraintsStub constraints(graph);
+  EXPECT_TRUE(constraints.lockVertex(defaultVertex, defaultRunner, 5, 7));
+  constraints.unlockVertex(defaultVertex, defaultRunner, 3, 9);
+  const auto& vertexLocks = constraints.getVertexLocks(defaultVertex);
+  EXPECT_TRUE(vertexLocks.empty());
+  auto numberOfIntervals = vertexLocks.iterative_size();
+  EXPECT_EQ(numberOfIntervals, 0u);
+  EXPECT_TRUE(constraints.isVertexFreeForRunner(defaultVertex, defaultRunner));
+  EXPECT_TRUE(constraints.isVertexFreeForRunner(defaultVertex, otherRunner));
+}
+
+TEST(Constraints, unlock_vertex_releases_part_of_the_interval_if_called_with_overlaping_interval_after)
+{
+  DefaultGraphLoader loader;
+  WeightedDiGraph graph = loader.getGraph();
+  ConstraintsStub constraints(graph);
+  EXPECT_TRUE(constraints.lockVertex(defaultVertex, defaultRunner, 3, 9));
+  constraints.unlockVertex(defaultVertex, defaultRunner, 7, 9);
+  const auto& vertexLocks = constraints.getVertexLocks(defaultVertex);
+  auto numberOfIntervals = vertexLocks.iterative_size();
+  EXPECT_EQ(numberOfIntervals, 1u);
+  for (auto it = vertexLocks.begin(); it != vertexLocks.end(); ++it)
+  {
+    EXPECT_EQ(it->first.lower(), 3u);
+    EXPECT_EQ(it->first.upper(), 7u);
+    ConstraintsStub::VertexLockIntervalType lockedToSet = it->second;
+    EXPECT_EQ(lockedToSet.size(), 1);
+    EXPECT_EQ(*lockedToSet.begin(), defaultRunner);
+  }
+  EXPECT_TRUE(constraints.isVertexFreeForRunner(defaultVertex, defaultRunner));
+  EXPECT_FALSE(constraints.isVertexFreeForRunner(defaultVertex, otherRunner));
+  EXPECT_TRUE(constraints.isVertexFreeForRunner(defaultVertex, otherRunner, 0, 3));
+  EXPECT_TRUE(constraints.isVertexFreeForRunner(defaultVertex, otherRunner, 9));
+}
+
+TEST(Constraints, unlock_vertex_releases_part_of_the_interval_if_called_with_overlaping_interval_before)
+{
+  DefaultGraphLoader loader;
+  WeightedDiGraph graph = loader.getGraph();
+  ConstraintsStub constraints(graph);
+  EXPECT_TRUE(constraints.lockVertex(defaultVertex, defaultRunner, 3, 9));
+  constraints.unlockVertex(defaultVertex, defaultRunner, 2, 5);
+  const auto& vertexLocks = constraints.getVertexLocks(defaultVertex);
+  auto numberOfIntervals = vertexLocks.iterative_size();
+  EXPECT_EQ(numberOfIntervals, 1u);
+  for (auto it = vertexLocks.begin(); it != vertexLocks.end(); ++it)
+  {
+    EXPECT_EQ(it->first.lower(), 5u);
+    EXPECT_EQ(it->first.upper(), 9u);
+    ConstraintsStub::VertexLockIntervalType lockedToSet = it->second;
+    EXPECT_EQ(lockedToSet.size(), 1);
+    EXPECT_EQ(*lockedToSet.begin(), defaultRunner);
+  }
+  EXPECT_TRUE(constraints.isVertexFreeForRunner(defaultVertex, defaultRunner));
+  EXPECT_FALSE(constraints.isVertexFreeForRunner(defaultVertex, otherRunner));
+  EXPECT_TRUE(constraints.isVertexFreeForRunner(defaultVertex, otherRunner, 0, 5));
+  EXPECT_TRUE(constraints.isVertexFreeForRunner(defaultVertex, otherRunner, 9));
+}
+
+TEST(Constraints, unlock_vertex_releases_part_of_the_interval_if_called_with_overlaping_interval_inside)
+{
+  DefaultGraphLoader loader;
+  WeightedDiGraph graph = loader.getGraph();
+  ConstraintsStub constraints(graph);
+  EXPECT_TRUE(constraints.lockVertex(defaultVertex, defaultRunner, 3, 9));
+  constraints.unlockVertex(defaultVertex, defaultRunner, 5, 7);
+  const auto& vertexLocks = constraints.getVertexLocks(defaultVertex);
+  auto numberOfIntervals = vertexLocks.iterative_size();
+  EXPECT_EQ(numberOfIntervals, 2u);
+  for (auto it = vertexLocks.begin(); it != vertexLocks.end(); ++it)
+  {
+    ConstraintsStub::VertexLockIntervalType lockedToSet = it->second;
+    EXPECT_EQ(lockedToSet.size(), 1);
+    EXPECT_EQ(*lockedToSet.begin(), defaultRunner);
+  }
+  EXPECT_TRUE(constraints.isVertexFreeForRunner(defaultVertex, defaultRunner));
+  EXPECT_FALSE(constraints.isVertexFreeForRunner(defaultVertex, otherRunner));
+  EXPECT_TRUE(constraints.isVertexFreeForRunner(defaultVertex, otherRunner, 0, 3));
+  EXPECT_TRUE(constraints.isVertexFreeForRunner(defaultVertex, otherRunner, 5, 7));
+  EXPECT_TRUE(constraints.isVertexFreeForRunner(defaultVertex, otherRunner, 9));
+}
+
+TEST(Constraints, unlock_vertex_preserves_lock_if_called_with_disjoint_interval)
+{
+  DefaultGraphLoader loader;
+  WeightedDiGraph graph = loader.getGraph();
+  ConstraintsStub constraints(graph);
+  EXPECT_TRUE(constraints.lockVertex(defaultVertex, defaultRunner, 3, 5));
+  constraints.unlockVertex(defaultVertex, defaultRunner, 7, 9);
+  const auto& vertexLocks = constraints.getVertexLocks(defaultVertex);
+  auto numberOfIntervals = vertexLocks.iterative_size();
+  EXPECT_EQ(numberOfIntervals, 1u);
+  for (auto it = vertexLocks.begin(); it != vertexLocks.end(); ++it)
+  {
+    ConstraintsStub::VertexLockIntervalType lockedToSet = it->second;
+    EXPECT_EQ(lockedToSet.size(), 1);
+    EXPECT_EQ(*lockedToSet.begin(), defaultRunner);
+  }
+  EXPECT_TRUE(constraints.isVertexFreeForRunner(defaultVertex, defaultRunner));
+  EXPECT_FALSE(constraints.isVertexFreeForRunner(defaultVertex, otherRunner));
+  EXPECT_TRUE(constraints.isVertexFreeForRunner(defaultVertex, otherRunner, 0, 3));
+  EXPECT_FALSE(constraints.isVertexFreeForRunner(defaultVertex, otherRunner, 3, 5));
+  EXPECT_TRUE(constraints.isVertexFreeForRunner(defaultVertex, otherRunner, 5));
+}
 
 TEST(Constraints, unlock_vertex_unlocks_the_vertex_interval)
 {
@@ -398,4 +543,26 @@ TEST(Constraints, unlocked_vertex_is_free_for_any_runner)
   {
     EXPECT_TRUE(constraints.isVertexFreeForRunner(1, runner));
   }
+}
+
+TEST(Constraints, is_vertex_free_for_runner_returns_false_if_other_runner_locked_part_of_requested_interval)
+{
+  DefaultGraphLoader loader;
+  WeightedDiGraph graph = loader.getGraph();
+  ConstraintsStub constraints(graph);
+  constraints.lockVertex(defaultVertex, defaultRunner, 5, 7);
+  constraints.lockVertex(defaultVertex, otherRunner, 7, 9);
+  EXPECT_FALSE(constraints.isVertexFreeForRunner(defaultVertex, defaultRunner));
+  EXPECT_TRUE(constraints.isVertexFreeForRunner(defaultVertex, defaultRunner, 0, 4));
+  EXPECT_TRUE(constraints.isVertexFreeForRunner(defaultVertex, otherRunner, 0, 4));
+  EXPECT_TRUE(constraints.isVertexFreeForRunner(defaultVertex, defaultRunner, 0, 5));
+  EXPECT_TRUE(constraints.isVertexFreeForRunner(defaultVertex, otherRunner, 0, 5));
+  EXPECT_TRUE(constraints.isVertexFreeForRunner(defaultVertex, defaultRunner, 0, 6));
+  EXPECT_TRUE(constraints.isVertexFreeForRunner(defaultVertex, defaultRunner, 0, 7));
+  EXPECT_FALSE(constraints.isVertexFreeForRunner(defaultVertex, defaultRunner, 0, 8));
+  EXPECT_FALSE(constraints.isVertexFreeForRunner(defaultVertex, defaultRunner, 5, 8));
+  EXPECT_TRUE(constraints.isVertexFreeForRunner(defaultVertex, defaultRunner, 5, 6));
+  EXPECT_TRUE(constraints.isVertexFreeForRunner(defaultVertex, defaultRunner, 5, 7));
+  EXPECT_TRUE(constraints.isVertexFreeForRunner(defaultVertex, defaultRunner, 6, 7));
+  EXPECT_FALSE(constraints.isVertexFreeForRunner(defaultVertex, defaultRunner, 6, 8));
 }
