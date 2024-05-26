@@ -57,9 +57,9 @@ class SimulationStub : public Simulation
     return constraints.lockVertex(vertex, runnerId);
   }
 
-  void unlockVertex(const Vertex& vertex)
+  void unlockVertex(const Vertex& vertex, unsigned runnerId)
   {
-    constraints.unlockVertex(vertex);
+    constraints.unlockVertex(vertex, runnerId);
   }
 };
 
@@ -274,7 +274,7 @@ TEST(SimulationTest, unlocks_vertex)
 
   SimulationStub simulation(jobRequests, graph, numberOfRunners);
   simulation.lockVertex(0, 1);
-  simulation.unlockVertex(0);
+  simulation.unlockVertex(0, 1);
   for (unsigned vertex = 0; vertex < graph.m_vertices.size(); ++vertex)
   {
     EXPECT_TRUE(simulation.isVertexFreeForRunner(vertex, 0));

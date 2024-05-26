@@ -54,7 +54,7 @@ void Simulation::assignNextJobToRunner(unsigned runnerId)
     newJobRequests.pop_back();
     jobAssignments[runnerId] = jobRequest;
     const auto& path = shortestPathStrategy(graph, jobRequest.startVertex, jobRequest.endVertex);
-    constraints.unlockVertex(runners[runnerId].getLastVisitedVertex());
+    constraints.unlockVertex(runners[runnerId].getLastVisitedVertex(), runnerId);
     runners[runnerId].travel(path, true);
     bool isLocked = constraints.lockVertex(runners[runnerId].getLastVisitedVertex(), runnerId);
     if (!isLocked)
@@ -62,7 +62,7 @@ void Simulation::assignNextJobToRunner(unsigned runnerId)
       std::ostringstream message;
       message << "Failed to assign new job to runner '" << runnerId << "': Vertex "
               << runners[runnerId].getLastVisitedVertex() << " is already locked to runner "
-              << *constraints.getVertexLock(runners[runnerId].getLastVisitedVertex());
+              << *constraints.getVertexLock(runners[runnerId].getLastVisitedVertex(), time);
       throw std::runtime_error(message.str());
     }
     std::cout << time << " - Runner " << runnerId << " - assigned new job " << jobRequest.startVertex << " "
@@ -115,7 +115,7 @@ void Simulation::moveRunners()
       }
       if (previousVertex != runner.getLastVisitedVertex())
       {
-        constraints.unlockVertex(previousVertex);
+        constraints.unlockVertex(previousVertex, runnerId);
       }
       std::cout << time << " - Runner " << runnerId << " moved from vertex " << previousVertex << " "
                 << graph[previousVertex].position << " to vertex " << runner.getLastVisitedVertex() << " position "
@@ -125,7 +125,7 @@ void Simulation::moveRunners()
     {
       std::cout << time << " - Runner " << runnerId << " stays at vertex " << runner.getLastVisitedVertex()
                 << " position " << runner.getPosition() << ". Next vertex " << runner.getNextVertex()
-                << " is locked to runner" << *constraints.getVertexLock(runner.getNextVertex()) << std::endl;
+                << " is locked to runner" << *constraints.getVertexLock(runner.getNextVertex(), time) << std::endl;
     }
   }
 }
