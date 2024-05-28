@@ -86,3 +86,52 @@ Check the `PROJECT_ROOT/output` directory for output.
  to convert all `dot` files in repo to corresponding `png` images.
 
  **Warning:** Converting all images can be slow depending on the number and size of the rendered graphs.
+
+## File formats
+
+Taken from [movingai.com](https://movingai.com/benchmarks/formats.html). You can download the test data there as well.
+
+### Map format (`.map`)
+
+The maps have the following format:
+All maps begin with the lines:
+
+```
+type octile
+height y
+width x
+map
+```
+
+where `y` and `x` are the respective height and width of the map.
+The map data is store as an ASCII grid. The upper-left corner of the map is `(0,0)`. The following characters are possible:
+
+```
+. - passable terrain
+G - passable terrain
+@ - out of bounds
+O - out of bounds
+T - trees (unpassable)
+S - swamp (passable from regular terrain)
+W - water (traversable, but not passable from terrain)
+```
+
+### Scenario format (`.scen`)
+
+Code to load the scenario files is available as part of HOG2, or can be accessed here: [ScenarioLoader.cpp](https://github.com/nathansttt/hog2/blob/PDB-refactor/utils/ScenarioLoader.cpp) and [ScenarioLoader.h](https://github.com/nathansttt/hog2/blob/PDB-refactor/utils/ScenarioLoader.h)
+The scenario files have the following format.
+
+The begin with the text `version x.x`. This document describes version `1.0`. The trailing `0` is optional.
+Each line of a scenario has 9 fields:
+```
+Bucket	map	map width	map height	start x-coordinate	start y-coordinate	goal x-coordinate	goal y-coordinate	optimal length
+0	maps/dao/arena.map	49	49	1	11	1	12	1
+0	maps/dao/arena.map	49	49	1	13	4	12	3.41421
+```
+
+**Notes:**
+The optimal path length is assuming `sqrt(2)` diagonal costs.
+The optimal path length assumes agents cannot cut corners through walls
+If the map height/width do not match the file, it should be scaled to that size
+`(0, 0)` is in the upper left corner of the maps
+Technically a single scenario file can have problems from many different maps, but currently every scenario only contains problems from a single map
