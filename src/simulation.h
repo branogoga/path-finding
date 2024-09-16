@@ -2,8 +2,10 @@
 
 #include "constraints.h"
 #include "graph.h"
+#include "path-finding.h"
 #include "runner.h"
 #include "scenario.h"
+
 
 class Simulation
 {

@@ -33,6 +33,8 @@ set(SOURCES
         src/graphviz.h 
         src/geometry.cpp 
         src/geometry.h 
+        src/path-finding.cpp 
+        src/path-finding.h 
         src/runner.cpp 
         src/runner.h 
         src/scenario.cpp 
@@ -75,6 +77,7 @@ add_executable(
         src/graph.test.cpp
         src/geometry.test.cpp
         src/graphviz.test.cpp
+        src/path-finding.test.cpp
         src/runner.test.cpp
         src/scenario.test.cpp
         src/sequence.test.cpp

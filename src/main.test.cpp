@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "graph.h"
+#include "path-finding.h"
 
 TEST(MainTest, shortest_path_1)
 {
