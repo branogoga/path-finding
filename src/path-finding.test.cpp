@@ -2,6 +2,7 @@
 
 #include <gtest/gtest.h>
 
+#include "sequence.h"
 
 TEST(shortest_paths, boost_dijkstra_shortest_paths)
 {
@@ -160,11 +161,26 @@ TEST(shortest_path, space_time_a_star_shortes_path)
   unsigned num_vertices = 6;  // Number of vertices in the graph
   WeightedDiGraph graph(num_vertices);
 
+  // TODO:
+  // - implement GridGraphLoader
+  // - try to use on that one
+  // - resolve infinite recursion, add stop condition if not able to find path in reasonable amount of steps
+
+  LinearSequence<float> linearSequence;
+  AlternateSequence<float> alternateSequence;
+  for (size_t index = 0; index < graph.m_vertices.size(); ++index)
+  {
+    float v = linearSequence();
+    float x = v;
+    float y = alternateSequence() * (v + 1);
+    graph.m_vertices[index].m_property.position = {x, y};
+  }
+
   Constraints constraints(graph);
   RunnerId runnerId = 1;
 
   // Adding edges with weights
-  add_edge(0, 1, 5, graph);
+  add_edge(0, 1, 2, graph);
   add_edge(0, 2, 1, graph);
   add_edge(1, 3, 2, graph);
   add_edge(2, 1, 2, graph);

@@ -5,6 +5,7 @@
 #include <boost/graph/astar_search.hpp>
 #include <boost/graph/dijkstra_shortest_paths.hpp>
 #include <boost/graph/graph_traits.hpp>
+#include <iostream>
 #include <queue>
 
 #include "graph.h"
@@ -256,6 +257,11 @@ Path space_time_a_star_shortes_path(
 
     if (current_vertex == goal) break;
 
+    if (current_time > 2 * graph.m_vertices.size())
+    {
+      std::cout << "Unable to find path: Time exceeded number of Vertices." << std::endl;
+    }
+
     boost::graph_traits<WeightedDiGraph>::out_edge_iterator ei, ei_end;
     for (tie(ei, ei_end) = out_edges(current_vertex, graph); ei != ei_end; ++ei)
     {
@@ -306,7 +312,7 @@ Path space_time_a_star_shortes_path(
 
   // TODO: return empty path if no path found!
 
-  for (PositionAtTime v = goal_state; v.vertex != start; v = PositionAtTime(predecessors[v], arrival_times[v]))
+  for (PositionAtTime v = goal_state; v.vertex != start; v = PositionAtTime(predecessors[v], arrival_times[v] - 1))
   {
     path.push_back(v.vertex);
   }
