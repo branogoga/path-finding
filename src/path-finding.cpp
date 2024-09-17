@@ -222,8 +222,18 @@ struct PositionAtTime {
   }
 };
 
+MultiAgentShortestPathCalculator multi_agent_shortest_path_calculator_wrapper(const ShortestPathCalculator& calculator)
+{
+  return [calculator](
+             const WeightedDiGraph& graph,
+             const Vertex& start,
+             const Vertex& target,
+             const Constraints& /*constraints*/,
+             RunnerId /*runnerId*/) { return calculator(graph, start, target); };
+}
+
 /// See [./doc/coop-path-AIWisdom.pdf](Cooperative Pathinding)
-Path space_time_a_star_shortes_path(
+Path space_time_a_star_shortest_path(
     const WeightedDiGraph& graph,
     const Vertex& start,
     const Vertex& goal,

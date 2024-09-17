@@ -6,7 +6,7 @@ Simulation::Simulation(
     const std::vector<JobRequest>& jobRequests,
     const WeightedDiGraph& graph,
     unsigned numberOfRunners,
-    ShortestPathCalculator shortestPathStrategy)
+    MultiAgentShortestPathCalculator shortestPathStrategy)
     : newJobRequests(
         jobRequests.rbegin(), jobRequests.rend())  // Revert the list, so that we can quickly pop first job from back
     , jobAssignments(numberOfRunners, std::nullopt)
@@ -53,7 +53,7 @@ void Simulation::assignNextJobToRunner(unsigned runnerId)
     auto jobRequest = newJobRequests.back();
     newJobRequests.pop_back();
     jobAssignments[runnerId] = jobRequest;
-    const auto& path = shortestPathStrategy(graph, jobRequest.startVertex, jobRequest.endVertex);
+    const auto& path = shortestPathStrategy(graph, jobRequest.startVertex, jobRequest.endVertex, constraints, runnerId);
     constraints.unlockVertex(runners[runnerId].getLastVisitedVertex(), runnerId);
     runners[runnerId].travel(path, true);
     bool isLocked = constraints.lockVertex(runners[runnerId].getLastVisitedVertex(), runnerId);

@@ -43,9 +43,16 @@ Path boost_a_star_shortest_path(const WeightedDiGraph& graph, const Vertex& star
 Path a_star_shortest_path(const WeightedDiGraph& graph, const Vertex& start, const Vertex& target);
 
 typedef std::function<Path(
-    const WeightedDiGraph& graph, const Vertex& start, const Vertex& target, const Constraints& constraints)>
+    const WeightedDiGraph& graph,
+    const Vertex& start,
+    const Vertex& target,
+    const Constraints& constraints,
+    RunnerId runnerId)>
     MultiAgentShortestPathCalculator;
-Path space_time_a_star_shortes_path(
+
+MultiAgentShortestPathCalculator multi_agent_shortest_path_calculator_wrapper(const ShortestPathCalculator& calculator);
+
+Path space_time_a_star_shortest_path(
     const WeightedDiGraph& graph,
     const Vertex& start,
     const Vertex& target,

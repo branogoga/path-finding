@@ -156,7 +156,7 @@ TEST(shortest_path, a_star_shortest_path)
   EXPECT_EQ(path[4], 5);
 }
 
-TEST(shortest_path, space_time_a_star_shortes_path)
+TEST(shortest_path, space_time_a_star_shortest_path)
 {
   unsigned num_vertices = 6;  // Number of vertices in the graph
   WeightedDiGraph graph(num_vertices);
@@ -192,7 +192,7 @@ TEST(shortest_path, space_time_a_star_shortes_path)
 
   Vertex source_vertex = 0;
   Vertex target_vertex = 5;
-  Path path = space_time_a_star_shortes_path(
+  Path path = space_time_a_star_shortest_path(
       graph,
       source_vertex,
       target_vertex,

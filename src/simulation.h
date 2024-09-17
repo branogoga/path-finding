@@ -14,7 +14,8 @@ class Simulation
       const std::vector<JobRequest> &jobRequests,
       const WeightedDiGraph &graph,
       unsigned numberOfRunners = 0,
-      ShortestPathCalculator shortestPathStrategy = a_star_shortest_path);
+      MultiAgentShortestPathCalculator shortestPathStrategy =
+          multi_agent_shortest_path_calculator_wrapper(a_star_shortest_path));
 
   void advance();
 
@@ -50,5 +51,5 @@ class Simulation
 
   unsigned time;
   bool someRunnerMovedInLastStep;
-  ShortestPathCalculator shortestPathStrategy;
+  MultiAgentShortestPathCalculator shortestPathStrategy;
 };
