@@ -16,6 +16,7 @@ Comparison of different algorithms for single &amp; multi agent path finding (_w
 **Algorithms:**
 - Dijkstra's algorithm
 - A" search
+- Space-Time A* Search
 
 ## How to run
 
