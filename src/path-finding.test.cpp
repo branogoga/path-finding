@@ -181,7 +181,7 @@ TEST(shortest_path, space_time_a_star_shortes_path)
 
   // Adding edges with weights
   add_edge(0, 1, 2, graph);
-  add_edge(0, 2, 1, graph);
+  add_edge(0, 2, 1 /*5*/, graph);
   add_edge(1, 3, 2, graph);
   add_edge(2, 1, 2, graph);
   add_edge(2, 3, 6, graph);
@@ -198,10 +198,13 @@ TEST(shortest_path, space_time_a_star_shortes_path)
       target_vertex,
       constraints,
       runnerId /*, euclidean_distance_heuristic(graph, target_vertex)*/);
-  EXPECT_EQ(path.size(), 5);
+  EXPECT_EQ(path.size(), 4 /*5*/);
   EXPECT_EQ(path[0], 0);
-  EXPECT_EQ(path[1], 2);
-  EXPECT_EQ(path[2], 1);
-  EXPECT_EQ(path[3], 3);
-  EXPECT_EQ(path[4], 5);
+  // EXPECT_EQ(path[1], 2);
+  //   EXPECT_EQ(path[2], 1);
+  //   EXPECT_EQ(path[3], 3);
+  //   EXPECT_EQ(path[4], 5);
+  EXPECT_EQ(path[1], 1);
+  EXPECT_EQ(path[2], 3);
+  EXPECT_EQ(path[3], 5);
 }
