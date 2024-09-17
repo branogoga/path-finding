@@ -6,7 +6,6 @@
 #include "runner.h"
 #include "scenario.h"
 
-
 class Simulation
 {
  public:

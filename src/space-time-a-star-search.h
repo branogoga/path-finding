@@ -5,7 +5,6 @@
 #include <queue>
 #include <vector>
 
-
 using namespace boost;
 
 // Define graph type
