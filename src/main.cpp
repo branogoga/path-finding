@@ -104,7 +104,7 @@ void run_scenario(const std::filesystem::path &scenarioFile)
     const unsigned numberOfRobots =
         std::min<unsigned>({3u, (unsigned)graph.m_vertices.size(), (unsigned)jobRequests.size()});
     const unsigned timeout = (unsigned)1E+06;
-    Simulation simulation(jobRequests, graph, numberOfRobots);
+    Simulation simulation(jobRequests, graph, numberOfRobots, space_time_a_star_shortest_path);
     simulation.advance();
     const auto scenarioDirectory = std::filesystem::path(scenarioFile).remove_filename();
     std::filesystem::create_directories(OutputDirectory / scenarioDirectory);
@@ -141,18 +141,18 @@ int main()
   std::filesystem::create_directories(OutputDirectory);
 
   std::vector<std::filesystem::path> scenarioFiles = {
-      SampleTest,
-      SituationsColisionCrossCrossThrough,
+      // SampleTest,
+      // SituationsColisionCrossCrossThrough,
       SituationsColisionCrossSwapPosition,
-      SituationsStepOver,
-      SituationsSwapOrder,
-      Maze_128x128_1_Even_1,
-      Maze_128x128_2_Even_1,
-      Maze_32x32_2_Even_1,
-      Warehouse_10_20_10_2_1_Even_1,
-      Warehouse_10_20_10_2_2_Even_1,
-      Warehouse_20_40_10_2_1_Even_1,
-      Warehouse_20_40_10_2_2_Even_1,
+      // SituationsStepOver,
+      // SituationsSwapOrder,
+      // Maze_128x128_1_Even_1,
+      // Maze_128x128_2_Even_1,
+      // Maze_32x32_2_Even_1,
+      // Warehouse_10_20_10_2_1_Even_1,
+      // Warehouse_10_20_10_2_2_Even_1,
+      // Warehouse_20_40_10_2_1_Even_1,
+      // Warehouse_20_40_10_2_2_Even_1,
   };
   for (const auto &scenarioFile : scenarioFiles)
   {
