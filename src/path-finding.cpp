@@ -267,9 +267,11 @@ Path space_time_a_star_shortest_path(
 
     if (current_vertex == goal) break;
 
-    if (current_time > 2 * graph.m_vertices.size())
+    if (current_time > 10 * graph.m_vertices.size())
     {
-      std::cout << "Unable to find path: Time exceeded number of Vertices." << std::endl;
+      std::cout << "Unable to find path: Time exceeded number of Vertices."
+                << "current_time=" << current_time << ", number_of_vertices=" << graph.m_vertices.size() << std::endl;
+      continue;
     }
 
     boost::graph_traits<WeightedDiGraph>::out_edge_iterator ei, ei_end;
