@@ -142,8 +142,13 @@ int main()
 
   std::vector<std::filesystem::path> scenarioFiles = {
       // SampleTest,
-      // SituationsColisionCrossCrossThrough,
-      SituationsColisionCrossSwapPosition,
+      SituationsColisionCrossCrossThrough,
+
+      // Runner 1 does not know, that destination position will be occupied, so it ignores the other Runner and plans
+      // shortest path to destination, does not release the path for the other Runner
+      // Runner 2 has the escape path already blocked, so it has no option to plan any path to "swap" place
+      // SituationsColisionCrossSwapPosition,
+
       // SituationsStepOver,
       // SituationsSwapOrder,
       // Maze_128x128_1_Even_1,
