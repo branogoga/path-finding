@@ -301,8 +301,8 @@ Path space_time_a_star_shortest_path(
       distances[paused_state] = distances[current_state];
       predecessors[paused_state] = current_vertex;
       arrival_times[paused_state] = current_time + 1;
-      Distance priority =
-          distances[current_state] + heuristic(current_vertex);  // ??? Should it cost something to stay at position ???
+      /// Add current_time as penalty for staying at the same place.
+      Distance priority = distances[current_state] + heuristic(current_vertex) + current_time;
       priorityQueue.push(std::make_pair(priority, paused_state));
     }
   }
