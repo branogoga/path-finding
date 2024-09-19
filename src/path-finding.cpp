@@ -264,6 +264,7 @@ Path space_time_a_star_shortest_path(
     priorityQueue.pop();
     Vertex current_vertex = current_state.vertex;
     unsigned current_time = current_state.time;
+    unsigned arrival_time = current_time + 1;
 
     if (current_vertex == goal) break;
 
@@ -280,13 +281,12 @@ Path space_time_a_star_shortest_path(
       Vertex next_vertex = target(*ei, graph);
       Distance weight = boost::get(boost::edge_weight_t(), graph, *ei);
       Distance tentative_distance = distances[current_state] + weight;
-      unsigned arrival_time = arrival_times[current_state] + 1;
 
       PositionAtTime next_state(next_vertex, arrival_time);
 
       if (/*tentative_distance < distances[next_state]
           &&*/
-          constraints.isVertexFreeForRunner(next_vertex, runnerId, arrival_time))
+          constraints.isVertexFreeForRunner(next_vertex, runnerId, arrival_time, arrival_time + 1))
       {
         distances[next_state] = tentative_distance;
         predecessors[next_state] = current_vertex;
@@ -298,7 +298,7 @@ Path space_time_a_star_shortest_path(
 
     // Allow to pause at the current vertex
     PositionAtTime paused_state(current_vertex, current_time + 1);
-    if (constraints.isVertexFreeForRunner(current_vertex, runnerId, current_time + 1))
+    if (constraints.isVertexFreeForRunner(current_vertex, runnerId, arrival_time, arrival_time + 1))
     {
       distances[paused_state] = distances[current_state];
       predecessors[paused_state] = current_vertex;
@@ -324,7 +324,7 @@ Path space_time_a_star_shortest_path(
 
   // TODO: return empty path if no path found!
 
-  for (PositionAtTime v = goal_state; v.vertex != start; v = PositionAtTime(predecessors[v], arrival_times[v] - 1))
+  for (PositionAtTime v = goal_state; v.vertex != start || v.time > 0; v = PositionAtTime(predecessors[v], v.time - 1))
   {
     path.push_back(v.vertex);
   }
