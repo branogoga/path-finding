@@ -39,6 +39,8 @@ class Simulation
 
   bool areAllRunnersFinished() const;
 
+  void lockPathForRunner(RunnerId runnerId, const Path &path);
+
   Constraints constraints;
 
  private:

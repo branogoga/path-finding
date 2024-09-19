@@ -54,20 +54,49 @@ void Simulation::assignNextJobToRunner(unsigned runnerId)
     newJobRequests.pop_back();
     jobAssignments[runnerId] = jobRequest;
     const auto& path = shortestPathStrategy(graph, jobRequest.startVertex, jobRequest.endVertex, constraints, runnerId);
-    constraints.unlockVertex(runners[runnerId].getLastVisitedVertex(), runnerId);
+    constraints.unlockVertex(runners[runnerId].getLastVisitedVertex(), runnerId, time /* +1 */);
     runners[runnerId].travel(path, true);
-    bool isLocked = constraints.lockVertex(runners[runnerId].getLastVisitedVertex(), runnerId);
-    if (!isLocked)
-    {
-      std::ostringstream message;
-      message << "Failed to assign new job to runner '" << runnerId << "': Vertex "
-              << runners[runnerId].getLastVisitedVertex() << " is already locked to runner "
-              << *constraints.getVertexLock(runners[runnerId].getLastVisitedVertex(), time);
-      throw std::runtime_error(message.str());
-    }
+    lockPathForRunner(runnerId, path);
+    // unsigned time_since_start = 0;
+    // bool isPathFree = true;
+    // for (auto vertex : path)
+    // {
+    //   const auto startTime = time + time_since_start;
+    //   const auto endTime = time + time_since_start + 1;
+    //   const bool isVertexFree = constraints.isVertexFreeForRunner(vertex, runnerId, startTime, endTime);
+    //   isPathFree &= isVertexFree;
+    //   ++time_since_start;
+    //   if (!isVertexFree)
+    //   {
+    //     std::ostringstream message;
+    //     message << "Failed to assign new job to runner '" << runnerId << "': Vertex "
+    //             << runners[runnerId].getLastVisitedVertex() << " is already locked to runner "
+    //             << *constraints.getVertexLock(runners[runnerId].getLastVisitedVertex(), time);
+    //   }
+    // }
+    // if (isPathFree)
+    // {
+    //   time_since_start = 0;
+    //   for (auto vertex : path)
+    //   {
+    //     const auto startTime = time + time_since_start;
+    //     const auto endTime = time + time_since_start + 1;
+    //     constraints.lockVertex(vertex, runnerId, startTime, endTime);
+    //     std::cout << "Locking vertex " << vertex << " to runner " << runnerId << " since " << startTime << " till
+    //     "
+    //               << endTime << std::endl;
+    //     ++time_since_start;
+    //   }
+    // }
+    // else
+    // {
+    //   std::ostringstream message;
+    //   message << "Unable to lock path for runner #" << runnerId << ". Some vertices are locked.";
+    //   throw std::runtime_error(message.str());
+    // }
     std::cout << time << " - Runner " << runnerId << " - assigned new job " << jobRequest.startVertex << " "
               << graph[jobRequest.startVertex].position << " > " << jobRequest.endVertex << " "
-              << graph[jobRequest.endVertex].position << std::endl;
+              << graph[jobRequest.endVertex].position << ", path=[" << path << "]" << std::endl;
   }
 }
 
@@ -101,11 +130,20 @@ void Simulation::finishRunnerJobs()
 
 void Simulation::moveRunners()
 {
+  for (auto i = 0; i < graph.m_vertices.size(); ++i)
+  {
+    auto lock = constraints.getVertexLock(i, time);
+    if (lock)
+    {
+      std::cout << time << " - Vertex " << i << " is locked to runner " << (lock ? *lock : -1) << std::endl;
+    }
+  }
+
   someRunnerMovedInLastStep = false;
   for (unsigned runnerId = 0; runnerId < runners.size(); ++runnerId)
   {
     auto& runner = runners[runnerId];
-    if (constraints.lockVertex(runner.getNextVertex(), runnerId))
+    if (constraints.lockVertex(runner.getNextVertex(), runnerId, time, time + 1))
     {
       const auto previousVertex = runner.getLastVisitedVertex();
       runner.advance();
@@ -113,20 +151,69 @@ void Simulation::moveRunners()
       {
         someRunnerMovedInLastStep = true;
       }
+      // if (previousVertex != runner.getLastVisitedVertex())
+      // {
+      //   constraints.unlockVertex(previousVertex, runnerId);
+      // }
       if (previousVertex != runner.getLastVisitedVertex())
       {
-        constraints.unlockVertex(previousVertex, runnerId);
+        std::cout << time << " - Runner " << runnerId << " moved from vertex " << previousVertex << " "
+                  << graph[previousVertex].position << " to vertex " << runner.getLastVisitedVertex() << " "
+                  << runner.getPosition() << std::endl;
       }
-      std::cout << time << " - Runner " << runnerId << " moved from vertex " << previousVertex << " "
-                << graph[previousVertex].position << " to vertex " << runner.getLastVisitedVertex() << " position "
-                << runner.getPosition() << std::endl;
+      else
+      {
+        std::cout << time << " - Runner " << runnerId << " waits at vertex " << previousVertex << " "
+                  << graph[previousVertex].position << std::endl;
+      }
     }
     else
     {
-      std::cout << time << " - Runner " << runnerId << " stays at vertex " << runner.getLastVisitedVertex()
-                << " position " << runner.getPosition() << ". Next vertex " << runner.getNextVertex()
-                << " is locked to runner" << *constraints.getVertexLock(runner.getNextVertex(), time) << std::endl;
+      // TODO: Is the vertex where we stay free at the next moment ???
+      std::cout << time << " - Runner " << runnerId << " stays at vertex " << runner.getLastVisitedVertex() << " "
+                << runner.getPosition() << ". Next vertex " << runner.getNextVertex() << " is locked to runner"
+                << *constraints.getVertexLock(runner.getNextVertex(), time) << std::endl;
     }
+  }
+}
+
+void Simulation::lockPathForRunner(RunnerId runnerId, const Path& path)
+{
+  unsigned time_since_start = 0;
+  bool isPathFree = true;
+  for (auto vertex : path)
+  {
+    const auto startTime = time + time_since_start;
+    const auto endTime = time + time_since_start + 1;
+    const bool isVertexFree = constraints.isVertexFreeForRunner(vertex, runnerId, startTime, endTime);
+    isPathFree &= isVertexFree;
+    ++time_since_start;
+    if (!isVertexFree)
+    {
+      std::ostringstream message;
+      message << "Failed to assign new job to runner '" << runnerId << "': Vertex "
+              << runners[runnerId].getLastVisitedVertex() << " is already locked to runner "
+              << *constraints.getVertexLock(runners[runnerId].getLastVisitedVertex(), time);
+    }
+  }
+  if (isPathFree)
+  {
+    time_since_start = 0;
+    for (auto vertex : path)
+    {
+      const auto startTime = time + time_since_start;
+      const auto endTime = time + time_since_start + 1;
+      constraints.lockVertex(vertex, runnerId, startTime, endTime);
+      std::cout << "Locking vertex " << vertex << " to runner " << runnerId << " since " << startTime << " till "
+                << endTime << std::endl;
+      ++time_since_start;
+    }
+  }
+  else
+  {
+    std::ostringstream message;
+    message << "Unable to lock path for runner #" << runnerId << ". Some vertices are locked.";
+    throw std::runtime_error(message.str());
   }
 }
 
@@ -151,7 +238,7 @@ bool Simulation::areAllRunnersFinished() const
 
 bool Simulation::isFinished() const
 {
-  return (newJobRequests.empty() && areAllRunnersFinished()) || !someRunnerMovedInLastStep;
+  return (newJobRequests.empty() && areAllRunnersFinished()) /*|| !someRunnerMovedInLastStep*/;
 }
 
 bool Simulation::isDeadlock() const
