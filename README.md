@@ -71,7 +71,7 @@ ctest
 ```
 
 ## Visualize results
- Install [GraphViz](https://graphviz.org/download/). Make sure the path to installation is present in system path.
+ Install [GraphViz](https://graphviz.org/download/) (on Windows, `winget install Graphviz.Graphviz` works too). Make sure the path to installation (e.g. `C:\Program Files\Graphviz\bin`) is present in system path.
 
 Check the `PROJECT_ROOT/output` directory for output.
 
