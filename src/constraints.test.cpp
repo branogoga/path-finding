@@ -507,10 +507,8 @@ TEST(Constraints, unlock_vertex_unlocks_the_vertex_interval)
   ConstraintsStub constraints(graph);
   constraints.lockVertex(1, 7);
   auto vertexLocks = constraints.getVertexLocks(1);
-  std::cout << vertexLocks << std::endl;
   constraints.unlockVertex(1, 7);
   vertexLocks = constraints.getVertexLocks(1);
-  std::cout << vertexLocks << std::endl;
   EXPECT_TRUE(vertexLocks.empty());
   auto numberOfIntervals = vertexLocks.iterative_size();
   EXPECT_EQ(numberOfIntervals, 0u);
