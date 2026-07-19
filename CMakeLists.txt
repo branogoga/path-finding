@@ -1,5 +1,14 @@
 cmake_minimum_required(VERSION 3.22)
 project(PathFinding VERSION 0.1.0.0 DESCRIPTION "Path finding" LANGUAGES CXX)
+
+# Restrict multi-config generators (e.g. Visual Studio) to the two configurations
+# this project and its CI actually build. Conan is only ever installed for one
+# build_type at a time, so leaving RelWithDebInfo/MinSizeRel enabled just produces
+# generate-time "IMPORTED_LOCATION not set" noise for configs nobody uses.
+if(CMAKE_CONFIGURATION_TYPES)
+  set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE)
+endif()
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
