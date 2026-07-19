@@ -31,7 +31,7 @@ jobs:
       run: |
         conan --version
         conan profile detect
-        conan install . -s build_type=${{ matrix.build_type }} -s arch=x86_64 --build missing
+        conan install . -s build_type=${{ matrix.build_type }} -s arch=x86_64 -s compiler.cppstd=20 -o "boost/*:without_cobalt=True" --build missing
 
     - name: Configure CMake
       # Conan generates a "conan-default" CMakePresets entry wired to the

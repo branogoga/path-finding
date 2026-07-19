@@ -25,7 +25,7 @@ std::string readVersion(
     std::ifstream& file, const std::string expectedParameterTitle, const std::filesystem::path& filename)
 {
   std::string line;
-  std::getline(file, line);
+  getLine(file, line);
   std::string label;
   std::string stringValue;
   std::istringstream lineStream(line);
@@ -116,7 +116,7 @@ FileScenarioLoader::FileScenarioLoader(const std::filesystem::path& filename)
   std::string line;
   while (file && !file.eof())
   {
-    std::getline(file, line);
+    getLine(file, line);
     if (!line.empty())
     {
       jobRequests.emplace_back(parseJobRequest(line, filename));

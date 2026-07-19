@@ -7,9 +7,11 @@
 #include <filesystem>
 #include <fstream>
 #include <optional>
+#include <ostream>
 #include <queue>
 
 #include "sequence.h"
+#include "strings.h"
 
 std::ostream& operator<<(std::ostream& stream, const Path& path)
 {
@@ -100,7 +102,7 @@ bool isVertexPassable(char value)
 void readStaticHeaderLine(std::ifstream& file, const std::string expectedLine, const std::string& filename)
 {
   std::string line;
-  std::getline(file, line);
+  getLine(file, line);
   if (line != expectedLine)
   {
     std::ostringstream message;
@@ -112,7 +114,7 @@ void readStaticHeaderLine(std::ifstream& file, const std::string expectedLine, c
 unsigned readUnsignedValue(std::ifstream& file, const std::string expectedParameterTitle, const std::string& filename)
 {
   std::string line;
-  std::getline(file, line);
+  getLine(file, line);
   std::string label;
   std::string stringValue;
   std::istringstream lineStream(line);
@@ -142,7 +144,7 @@ std::vector<std::string> readMap(std::ifstream& file, unsigned width, unsigned h
   for (unsigned h = 0; h < height; ++h)
   {
     std::string line;
-    std::getline(file, line);
+    getLine(file, line);
     map.push_back(line);
     if (line.size() != width)
     {

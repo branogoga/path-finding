@@ -1,5 +1,15 @@
 #include "strings.h"
 
+std::istream& getLine(std::istream& input, std::string& line)
+{
+  std::getline(input, line);
+  if (!line.empty() && line.back() == '\r')
+  {
+    line.pop_back();
+  }
+  return input;
+}
+
 std::vector<std::string> split(const std::string& input, const std::set<char>&& delimiters)
 {
   std::vector<std::string> views;

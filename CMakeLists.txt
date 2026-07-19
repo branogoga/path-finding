@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 project(PathFinding VERSION 0.1.0.0 DESCRIPTION "Path finding" LANGUAGES CXX)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
 
@@ -13,8 +13,7 @@ add_definitions(-DPROJECT_ROOT_DIR="${PROJECT_ROOT_DIR}")
 #
 # Import Boost
 #
-find_package(Boost 1.85.0 REQUIRED)
-include_directories(${Boost_INCLUDE_DIRS})
+find_package(Boost 1.91.0 REQUIRED)
 
 #
 # Define application target
@@ -50,6 +49,9 @@ configure_file(src/version.h.in version.h)
 target_include_directories(path-finding PUBLIC
         "${PROJECT_BINARY_DIR}"
         )
+# Boost is header-only for the components we use here; mark its headers as
+# "system" so warnings originating inside Boost aren't escalated by /WX.
+target_include_directories(path-finding SYSTEM PRIVATE ${Boost_INCLUDE_DIRS})
 
 # Strict warning level
 if(MSVC)
@@ -63,8 +65,7 @@ endif()
 #
 # Define test target
 #
-find_package(GTest 1.14.0 REQUIRED)
-include_directories(${GTest_INCLUDE_DIRS})
+find_package(GTest 1.17.0 REQUIRED)
 
 enable_testing()
 
@@ -89,6 +90,7 @@ target_link_libraries(
         path-finding-test
         GTest::gtest_main
 )
+target_include_directories(path-finding-test SYSTEM PRIVATE ${Boost_INCLUDE_DIRS})
 
 # Strict warning level
 if(MSVC)
