@@ -1,0 +1,48 @@
+# This workflow verifies the project builds and its tests pass on Windows
+# using the MSVC 2022 toolset (Visual Studio 17 2022).
+name: Build (Windows, MSVC 2022)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    # Pinned to the 2022 image (rather than windows-latest) so this job keeps
+    # verifying the MSVC 2022 toolset even after GitHub moves the "latest"
+    # label to a newer Visual Studio image.
+    runs-on: windows-2022
+
+    strategy:
+      fail-fast: false
+      matrix:
+        build_type: [Release]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install Conan
+      id: conan
+      uses: turtlebrowser/get-conan@main
+
+    - name: Setup Conan
+      run: |
+        conan --version
+        conan profile detect
+        conan install . -s build_type=${{ matrix.build_type }} -s arch=x86_64 --build missing
+
+    - name: Configure CMake
+      # Conan generates a "conan-default" CMakePresets entry wired to the
+      # correct generator/toolset/platform for the profile used above.
+      run: cmake --preset conan-default -S ${{ github.workspace }}
+
+    - name: Build
+      # --config is required because the Visual Studio generator is a
+      # multi-config generator (build type is chosen at build time).
+      run: cmake --build build --config ${{ matrix.build_type }}
+
+    - name: Test
+      working-directory: build
+      run: ctest --build-config ${{ matrix.build_type }} --output-on-failure
