@@ -281,3 +281,63 @@ TEST(SimulationTest, unlocks_vertex)
     EXPECT_TRUE(simulation.isVertexFreeForRunner(vertex, 1));
   }
 }
+
+TEST(SimulationTest, swapping_runners_reach_their_destination_when_a_safe_path_exists)
+{
+  // Line graph 0 <-> 1 <-> 2 <-> 3. Runner 0 travels 0 -> 2 (via 1); Runner 1 starts one step
+  // further back at vertex 3 and travels to vertex 0 (via 2 and 1). Runner 1 has room to wait at
+  // vertex 3 until Runner 0 has cleared the shared corridor, so both can complete safely without
+  // ever swapping places across the same edge at the same time.
+  WeightedDiGraph graph(4);
+  add_edge(0, 1, 1.0f, graph);
+  add_edge(1, 0, 1.0f, graph);
+  add_edge(1, 2, 1.0f, graph);
+  add_edge(2, 1, 1.0f, graph);
+  add_edge(2, 3, 1.0f, graph);
+  add_edge(3, 2, 1.0f, graph);
+
+  std::vector<JobRequest> jobRequests{JobRequest(0, 2), JobRequest(3, 0)};
+  Simulation simulation(jobRequests, graph, 2, space_time_a_star_shortest_path);
+
+  const unsigned timeout = 100;
+  while (!simulation.isFinished() && !simulation.isDeadlock() && simulation.getTime() < timeout)
+  {
+    simulation.advance();
+  }
+
+  EXPECT_LT(simulation.getTime(), timeout) << "Simulation did not terminate within the timeout.";
+  EXPECT_FALSE(simulation.isDeadlock());
+  EXPECT_TRUE(simulation.isFinished());
+  EXPECT_EQ(simulation.getFinishedJobRequests().size(), 2u);
+}
+
+TEST(SimulationTest, swapping_runners_report_a_deadlock_instead_of_colliding_when_no_safe_path_exists)
+{
+  // End-to-end regression test for the "colision-cross" swap-position bug: two runners start at
+  // opposite ends of a dead-end corridor, each heading exactly for where the other started. Neither
+  // has anywhere to wait out of the other's way, so a genuinely collision-free schedule does not
+  // exist. Before the fix, this silently "succeeded" by letting the two runners swap places across
+  // the same edge at the same time - a physical collision. The correct behaviour is to detect and
+  // report a deadlock instead: not to collide, and not to hang.
+  WeightedDiGraph graph(3);
+  add_edge(0, 1, 1.0f, graph);
+  add_edge(1, 0, 1.0f, graph);
+  add_edge(1, 2, 1.0f, graph);
+  add_edge(2, 1, 1.0f, graph);
+
+  std::vector<JobRequest> jobRequests{JobRequest(0, 2), JobRequest(2, 0)};
+  Simulation simulation(jobRequests, graph, 2, space_time_a_star_shortest_path);
+
+  const unsigned timeout = 100;
+  while (!simulation.isFinished() && !simulation.isDeadlock() && simulation.getTime() < timeout)
+  {
+    simulation.advance();
+  }
+
+  EXPECT_LT(simulation.getTime(), timeout) << "Simulation did not terminate within the timeout.";
+  EXPECT_TRUE(simulation.isDeadlock());
+  EXPECT_FALSE(simulation.isFinished());
+  // Runner 0's job (which never conflicted with anything) still completes normally; only Runner 1's
+  // genuinely-impossible job is left unfinished.
+  EXPECT_EQ(simulation.getFinishedJobRequests().size(), 1u);
+}

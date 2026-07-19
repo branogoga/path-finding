@@ -110,7 +110,7 @@ void run_scenario(const std::filesystem::path &scenarioFile)
     std::filesystem::create_directories(OutputDirectory / scenarioDirectory);
     write_graph_to_dot_file(OutputDirectory / scenarioDirectory / "graph.dot", graph, simulation.getRunners());
 
-    while (!simulation.isFinished() && simulation.getTime() < timeout)
+    while (!simulation.isFinished() && !simulation.isDeadlock() && simulation.getTime() < timeout)
     {
       simulation.advance();
     }
@@ -144,9 +144,11 @@ int main()
       // SampleTest,
       SituationsColisionCrossCrossThrough,
 
-      // Runner 1 does not know, that destination position will be occupied, so it ignores the other Runner and plans
-      // shortest path to destination, does not release the path for the other Runner
-      // Runner 2 has the escape path already blocked, so it has no option to plan any path to "swap" place
+      // The two runners start at opposite ends of a dead-end corridor, each heading exactly for
+      // where the other started. There is no room for either to wait out of the other's way, so no
+      // collision-free schedule exists: this now correctly ends in a detected deadlock (see
+      // output/situations/colision-cross/deadlock.dot) rather than the runners silently swapping
+      // places across the same edge at the same time, which is what used to happen here.
       // SituationsColisionCrossSwapPosition,
 
       // SituationsStepOver,

@@ -286,7 +286,8 @@ Path space_time_a_star_shortest_path(
 
       if (/*tentative_distance < distances[next_state]
           &&*/
-          constraints.isVertexFreeForRunner(next_vertex, runnerId, arrival_time, arrival_time + 1))
+          constraints.isVertexFreeForRunner(next_vertex, runnerId, arrival_time, arrival_time + 1) &&
+          constraints.isEdgeFreeForRunner(current_vertex, next_vertex, runnerId, current_time, arrival_time))
       {
         distances[next_state] = tentative_distance;
         predecessors[next_state] = current_vertex;
@@ -322,7 +323,15 @@ Path space_time_a_star_shortest_path(
     }
   }
 
-  // TODO: return empty path if no path found!
+  if (min_time == std::numeric_limits<unsigned>::max())
+  {
+    // No path to the goal was found given the current constraints (e.g. every remaining route is
+    // blocked by another runner's reservation). Returning here also avoids reconstructing from a
+    // `goal_state` that was never actually reached: `predecessors`/`arrival_times` have no entry
+    // for it, so `std::map::operator[]` would default-construct one, and the loop below would
+    // underflow `v.time` (unsigned) below zero and never terminate.
+    return path;
+  }
 
   for (PositionAtTime v = goal_state; v.vertex != start || v.time > 0; v = PositionAtTime(predecessors[v], v.time - 1))
   {

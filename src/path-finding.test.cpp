@@ -205,3 +205,86 @@ TEST(shortest_path, space_time_a_star_shortest_path)
   EXPECT_EQ(path[3], 3);
   EXPECT_EQ(path[4], 5);
 }
+
+TEST(shortest_path, space_time_a_star_shortest_path_does_not_plan_a_swap_with_another_runner)
+{
+  // Line graph 0 <-> 1 <-> 2 <-> 3. Runner 0 has already been planned and locked to travel
+  // 0 -> 1 -> 2, i.e. it crosses edge (1,2) during [1,2). Runner 1 starts one step further back, at
+  // vertex 3, and wants to travel to vertex 0 - also crossing vertex 1 and edge (1,2)/(2,1). Runner 1
+  // has room to wait at vertex 3 until Runner 0 has fully cleared the corridor, so a safe path
+  // genuinely exists here. If the planner only checked vertex occupancy (the bug), it could instead
+  // schedule Runner 1 to cross edge (2,1) during [1,2) - the exact same time window as Runner 0
+  // crossing (1,2) - a head-on collision even though neither runner is ever recorded as occupying
+  // the same vertex at the same time.
+  WeightedDiGraph graph(4);
+  add_edge(0, 1, 1.0f, graph);
+  add_edge(1, 0, 1.0f, graph);
+  add_edge(1, 2, 1.0f, graph);
+  add_edge(2, 1, 1.0f, graph);
+  add_edge(2, 3, 1.0f, graph);
+  add_edge(3, 2, 1.0f, graph);
+  for (size_t index = 0; index < graph.m_vertices.size(); ++index)
+  {
+    graph.m_vertices[index].m_property.position = {float(index), 0.0f};
+  }
+
+  Constraints constraints(graph);
+  const RunnerId runner0 = 0;
+  const RunnerId runner1 = 1;
+
+  constraints.lockVertex(0, runner0, 0, 1);
+  constraints.lockVertex(1, runner0, 1, 2);
+  constraints.lockVertex(2, runner0, 2, 3);
+  constraints.lockEdge(0, 1, runner0, 0, 1);
+  constraints.lockEdge(1, 2, runner0, 1, 2);
+
+  Path path = space_time_a_star_shortest_path(graph, 3, 0, constraints, runner1);
+
+  ASSERT_FALSE(path.empty()) << "A safe path exists (Runner 1 can wait at vertex 3), but none was found.";
+  EXPECT_EQ(path.front(), 3u);
+  EXPECT_EQ(path.back(), 0u);
+  for (unsigned time = 0; time + 1 < path.size(); ++time)
+  {
+    if (path[time] == path[time + 1])
+    {
+      continue;  // Runner 1 is waiting in place, not traversing an edge.
+    }
+    // Whatever move the planner chose, it must not be one that isEdgeFreeForRunner would reject
+    // against Runner 0's already-locked schedule, i.e. the plan must be genuinely collision-free.
+    EXPECT_TRUE(constraints.isEdgeFreeForRunner(path[time], path[time + 1], runner1, time, time + 1))
+        << "Runner 1 swaps with Runner 0 across edge (" << path[time] << "->" << path[time + 1] << ") at time "
+        << time;
+  }
+}
+
+TEST(shortest_path, space_time_a_star_shortest_path_returns_empty_path_if_swapping_is_the_only_option)
+{
+  // Line graph 0 <-> 1 <-> 2, with no room to retreat: Runner 1 starts exactly where Runner 0 is
+  // headed (vertex 2), and vertex 2 has no other neighbor to wait at. Runner 1 must leave vertex 2
+  // before Runner 0 arrives there, but the only way out crosses the same edge Runner 0 is using in
+  // the opposite direction at that exact moment. There is genuinely no collision-free path here, so
+  // the planner must report failure (an empty path) rather than either colliding or hanging.
+  WeightedDiGraph graph(3);
+  add_edge(0, 1, 1.0f, graph);
+  add_edge(1, 0, 1.0f, graph);
+  add_edge(1, 2, 1.0f, graph);
+  add_edge(2, 1, 1.0f, graph);
+  for (size_t index = 0; index < graph.m_vertices.size(); ++index)
+  {
+    graph.m_vertices[index].m_property.position = {float(index), 0.0f};
+  }
+
+  Constraints constraints(graph);
+  const RunnerId runner0 = 0;
+  const RunnerId runner1 = 1;
+
+  constraints.lockVertex(0, runner0, 0, 1);
+  constraints.lockVertex(1, runner0, 1, 2);
+  constraints.lockVertex(2, runner0, 2, 3);
+  constraints.lockEdge(0, 1, runner0, 0, 1);
+  constraints.lockEdge(1, 2, runner0, 1, 2);
+
+  Path path = space_time_a_star_shortest_path(graph, 2, 0, constraints, runner1);
+
+  EXPECT_TRUE(path.empty());
+}

@@ -1,6 +1,7 @@
 #include "simulation.h"
 
 #include <iostream>
+#include <optional>
 
 Simulation::Simulation(
     const std::vector<JobRequest>& jobRequests,
@@ -121,7 +122,12 @@ void Simulation::finishRunnerJobs()
 {
   for (unsigned runnerId = 0; runnerId < runners.size(); ++runnerId)
   {
-    if (runners[runnerId].isInDestination() && isJobAssignedToRunner(runnerId))
+    // A runner whose path is empty was never given a plan to begin with (the strategy could not
+    // find a collision-free path for its currently assigned job) - it is not "in destination", it
+    // never went anywhere. Without this check, a runner whose position happens to already equal its
+    // stale (unset) destination would have its job silently marked finished despite never moving.
+    if (runners[runnerId].isInDestination() && isJobAssignedToRunner(runnerId) &&
+        !runners[runnerId].getPath().empty())
     {
       finishRunnerJob(runnerId);
     }
@@ -143,8 +149,20 @@ void Simulation::moveRunners()
   for (unsigned runnerId = 0; runnerId < runners.size(); ++runnerId)
   {
     auto& runner = runners[runnerId];
-    if (constraints.lockVertex(runner.getNextVertex(), runnerId, time, time + 1))
+    const auto currentVertex = runner.getLastVisitedVertex();
+    const auto nextVertex = runner.getNextVertex();
+    const bool isStaying = currentVertex == nextVertex;
+    const bool isVertexFree = constraints.isVertexFreeForRunner(nextVertex, runnerId, time, time + 1);
+    // Staying in place is not an edge traversal, so there is nothing to check for a swap collision.
+    const bool isEdgeFree =
+        isStaying || constraints.isEdgeFreeForRunner(currentVertex, nextVertex, runnerId, time, time + 1);
+    if (isVertexFree && isEdgeFree)
     {
+      constraints.lockVertex(nextVertex, runnerId, time, time + 1);
+      if (!isStaying)
+      {
+        constraints.lockEdge(currentVertex, nextVertex, runnerId, time, time + 1);
+      }
       const auto previousVertex = runner.getLastVisitedVertex();
       runner.advance();
       if (previousVertex != runner.getLastVisitedVertex())
@@ -170,9 +188,17 @@ void Simulation::moveRunners()
     else
     {
       // TODO: Is the vertex where we stay free at the next moment ???
-      std::cout << time << " - Runner " << runnerId << " stays at vertex " << runner.getLastVisitedVertex() << " "
-                << runner.getPosition() << ". Next vertex " << runner.getNextVertex() << " is locked to runner"
-                << *constraints.getVertexLock(runner.getNextVertex(), time) << std::endl;
+      std::cout << time << " - Runner " << runnerId << " stays at vertex " << currentVertex << " "
+                << runner.getPosition() << ". Next vertex " << nextVertex << " is ";
+      if (!isVertexFree)
+      {
+        std::cout << "locked to runner" << *constraints.getVertexLock(nextVertex, time);
+      }
+      else
+      {
+        std::cout << "reachable only by swapping places with another runner";
+      }
+      std::cout << std::endl;
     }
   }
 }
@@ -181,13 +207,13 @@ void Simulation::lockPathForRunner(RunnerId runnerId, const Path& path)
 {
   unsigned time_since_start = 0;
   bool isPathFree = true;
+  std::optional<Vertex> previousVertex;
   for (auto vertex : path)
   {
     const auto startTime = time + time_since_start;
     const auto endTime = time + time_since_start + 1;
     const bool isVertexFree = constraints.isVertexFreeForRunner(vertex, runnerId, startTime, endTime);
     isPathFree &= isVertexFree;
-    ++time_since_start;
     if (!isVertexFree)
     {
       std::ostringstream message;
@@ -195,10 +221,21 @@ void Simulation::lockPathForRunner(RunnerId runnerId, const Path& path)
               << runners[runnerId].getLastVisitedVertex() << " is already locked to runner "
               << *constraints.getVertexLock(runners[runnerId].getLastVisitedVertex(), time);
     }
+    // The edge from the previous vertex to this one is traversed during the previous vertex's own
+    // occupancy window, i.e. [startTime - 1, startTime).
+    if (previousVertex && *previousVertex != vertex)
+    {
+      const bool isEdgeFree =
+          constraints.isEdgeFreeForRunner(*previousVertex, vertex, runnerId, startTime - 1, startTime);
+      isPathFree &= isEdgeFree;
+    }
+    previousVertex = vertex;
+    ++time_since_start;
   }
   if (isPathFree)
   {
     time_since_start = 0;
+    previousVertex = std::nullopt;
     for (auto vertex : path)
     {
       const auto startTime = time + time_since_start;
@@ -206,6 +243,13 @@ void Simulation::lockPathForRunner(RunnerId runnerId, const Path& path)
       constraints.lockVertex(vertex, runnerId, startTime, endTime);
       std::cout << "Locking vertex " << vertex << " to runner " << runnerId << " since " << startTime << " till "
                 << endTime << std::endl;
+      if (previousVertex && *previousVertex != vertex)
+      {
+        constraints.lockEdge(*previousVertex, vertex, runnerId, startTime - 1, startTime);
+        std::cout << "Locking edge " << *previousVertex << "->" << vertex << " to runner " << runnerId << " since "
+                  << (startTime - 1) << " till " << startTime << std::endl;
+      }
+      previousVertex = vertex;
       ++time_since_start;
     }
   }

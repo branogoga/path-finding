@@ -58,3 +58,57 @@ std::optional<RunnerId> Constraints::getVertexLock(const Vertex& vertex, unsigne
     return std::nullopt;
   }
 }
+
+bool Constraints::isEdgeFreeForRunner(
+    const Vertex& from, const Vertex& to, RunnerId runnerId, unsigned startTime, unsigned endTime) const
+{
+  // A runner travelling `from` -> `to` collides head-on with any other runner travelling the
+  // reverse edge `to` -> `from` during an overlapping interval, so that's the only direction that
+  // needs checking here: two runners travelling the same direction on the same edge can never
+  // overlap in time in the first place, since they would first have to occupy the same `from`
+  // vertex at the same time, which vertex locking already prevents.
+  const auto reverseEdgeIterator = edgeLocks.find(DirectedEdge(to, from));
+  if (reverseEdgeIterator == edgeLocks.end())
+  {
+    return true;
+  }
+  const auto& interval_map = reverseEdgeIterator->second;
+  const auto range = interval_map.equal_range(boost::icl::interval<unsigned>::right_open(startTime, endTime));
+  for (auto it = range.first; it != range.second; ++it)
+  {
+    auto edgeLockedToRunners = it->second;
+    if (!std::all_of(
+            edgeLockedToRunners.begin(),
+            edgeLockedToRunners.end(),
+            [&runnerId](RunnerId id) { return runnerId == id; }))
+    {
+      return false;
+    }
+  }
+  // Invariant: There are no intervals in that range, or all intervals belong to given `runnerId`.
+  return true;
+}
+
+bool Constraints::lockEdge(
+    const Vertex& from, const Vertex& to, RunnerId runnerId, unsigned startTime, unsigned endTime)
+{
+  if (!isEdgeFreeForRunner(from, to, runnerId, startTime, endTime))
+  {
+    return false;
+  }
+  edgeLocks[DirectedEdge(from, to)].add(std::make_pair(
+      boost::icl::interval<unsigned>::right_open(startTime, endTime), VertexLockIntervalType({runnerId})));
+
+  return true;
+}
+
+void Constraints::unlockEdge(
+    const Vertex& from, const Vertex& to, RunnerId runnerId, unsigned startTime, unsigned endTime)
+{
+  const auto edgeIterator = edgeLocks.find(DirectedEdge(from, to));
+  if (edgeIterator != edgeLocks.end())
+  {
+    edgeIterator->second -= std::make_pair(
+        boost::icl::interval<unsigned>::right_open(startTime, endTime), VertexLockIntervalType({runnerId}));
+  }
+}

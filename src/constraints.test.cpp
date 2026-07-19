@@ -17,7 +17,16 @@ class ConstraintsStub : public Constraints
   {
     return locks[vertex];
   }
+
+  static const VertexLocksType emptyEdgeLocks;
+  const VertexLocksType& getEdgeLocks(Vertex from, Vertex to) const
+  {
+    const auto it = edgeLocks.find(DirectedEdge(from, to));
+    return it != edgeLocks.end() ? it->second : emptyEdgeLocks;
+  }
 };
+
+const Constraints::VertexLocksType ConstraintsStub::emptyEdgeLocks{};
 
 const Vertex defaultVertex = 1;
 const Vertex otherVertex = 2;
@@ -563,4 +572,132 @@ TEST(Constraints, is_vertex_free_for_runner_returns_false_if_other_runner_locked
   EXPECT_TRUE(constraints.isVertexFreeForRunner(defaultVertex, defaultRunner, 5, 7));
   EXPECT_TRUE(constraints.isVertexFreeForRunner(defaultVertex, defaultRunner, 6, 7));
   EXPECT_FALSE(constraints.isVertexFreeForRunner(defaultVertex, defaultRunner, 6, 8));
+}
+
+TEST(Constraints, initially_no_edge_is_locked)
+{
+  DefaultGraphLoader loader;
+  WeightedDiGraph graph = loader.getGraph();
+  ConstraintsStub constraints(graph);
+  EXPECT_TRUE(constraints.getEdgeLocks(defaultVertex, otherVertex).empty());
+  EXPECT_TRUE(constraints.getEdgeLocks(otherVertex, defaultVertex).empty());
+}
+
+TEST(Constraints, initially_edges_are_free_for_any_runner_during_infinite_time)
+{
+  DefaultGraphLoader loader;
+  WeightedDiGraph graph = loader.getGraph();
+  ConstraintsStub constraints(graph);
+  const size_t numberOfRunners = 10;
+  for (auto runner = 0; runner < numberOfRunners; ++runner)
+  {
+    EXPECT_TRUE(constraints.isEdgeFreeForRunner(defaultVertex, otherVertex, runner));
+    EXPECT_TRUE(constraints.isEdgeFreeForRunner(otherVertex, defaultVertex, runner));
+  }
+}
+
+TEST(Constraints, lock_edge_locks_the_directed_edge_to_runner)
+{
+  DefaultGraphLoader loader;
+  WeightedDiGraph graph = loader.getGraph();
+  ConstraintsStub constraints(graph);
+  EXPECT_TRUE(constraints.lockEdge(defaultVertex, otherVertex, defaultRunner, 5, 7));
+  const auto& edgeLocks = constraints.getEdgeLocks(defaultVertex, otherVertex);
+  auto numberOfIntervals = edgeLocks.iterative_size();
+  EXPECT_EQ(numberOfIntervals, 1u);
+  for (auto it = edgeLocks.begin(); it != edgeLocks.end(); ++it)
+  {
+    EXPECT_EQ(it->first.lower(), 5u);
+    EXPECT_EQ(it->first.upper(), 7u);
+    ConstraintsStub::VertexLockIntervalType lockedToSet = it->second;
+    EXPECT_EQ(lockedToSet.size(), 1);
+    EXPECT_EQ(*lockedToSet.begin(), defaultRunner);
+  }
+}
+
+TEST(Constraints, lock_edge_does_not_lock_the_reverse_edge)
+{
+  DefaultGraphLoader loader;
+  WeightedDiGraph graph = loader.getGraph();
+  ConstraintsStub constraints(graph);
+  EXPECT_TRUE(constraints.lockEdge(defaultVertex, otherVertex, defaultRunner, 5, 7));
+  EXPECT_TRUE(constraints.getEdgeLocks(otherVertex, defaultVertex).empty());
+}
+
+TEST(Constraints, is_edge_free_for_runner_ignores_a_different_runner_using_the_same_direction)
+{
+  // Two runners travelling the same edge in the same direction can never actually collide here:
+  // they would first have to occupy the same "from" vertex at the same time, which vertex locking
+  // already forbids. isEdgeFreeForRunner only guards against swapping with the *reverse* direction.
+  DefaultGraphLoader loader;
+  WeightedDiGraph graph = loader.getGraph();
+  ConstraintsStub constraints(graph);
+  EXPECT_TRUE(constraints.lockEdge(defaultVertex, otherVertex, otherRunner, 5, 7));
+  EXPECT_TRUE(constraints.isEdgeFreeForRunner(defaultVertex, otherVertex, defaultRunner, 5, 7));
+}
+
+TEST(Constraints, is_edge_free_for_runner_returns_false_if_reverse_edge_locked_to_different_runner)
+{
+  DefaultGraphLoader loader;
+  WeightedDiGraph graph = loader.getGraph();
+  ConstraintsStub constraints(graph);
+  EXPECT_TRUE(constraints.lockEdge(otherVertex, defaultVertex, otherRunner, 5, 7));
+  EXPECT_FALSE(constraints.isEdgeFreeForRunner(defaultVertex, otherVertex, defaultRunner, 5, 7));
+  EXPECT_FALSE(constraints.isEdgeFreeForRunner(defaultVertex, otherVertex, defaultRunner, 6, 8));
+  EXPECT_TRUE(constraints.isEdgeFreeForRunner(defaultVertex, otherVertex, defaultRunner, 0, 5));
+  EXPECT_TRUE(constraints.isEdgeFreeForRunner(defaultVertex, otherVertex, defaultRunner, 7, 9));
+}
+
+TEST(Constraints, is_edge_free_for_runner_returns_true_if_reverse_edge_locked_to_the_same_runner)
+{
+  DefaultGraphLoader loader;
+  WeightedDiGraph graph = loader.getGraph();
+  ConstraintsStub constraints(graph);
+  EXPECT_TRUE(constraints.lockEdge(otherVertex, defaultVertex, defaultRunner, 5, 7));
+  EXPECT_TRUE(constraints.isEdgeFreeForRunner(defaultVertex, otherVertex, defaultRunner, 5, 7));
+}
+
+TEST(Constraints, lock_edge_fails_and_reserves_nothing_if_reverse_edge_locked_to_different_runner)
+{
+  DefaultGraphLoader loader;
+  WeightedDiGraph graph = loader.getGraph();
+  ConstraintsStub constraints(graph);
+  EXPECT_TRUE(constraints.lockEdge(otherVertex, defaultVertex, otherRunner, 5, 7));
+  EXPECT_FALSE(constraints.lockEdge(defaultVertex, otherVertex, defaultRunner, 5, 7));
+  EXPECT_TRUE(constraints.getEdgeLocks(defaultVertex, otherVertex).empty());
+}
+
+TEST(Constraints, lock_edge_does_not_lock_a_different_vertex_pair)
+{
+  const Vertex thirdVertex = 3;
+  DefaultGraphLoader loader;
+  WeightedDiGraph graph = loader.getGraph();
+  ConstraintsStub constraints(graph);
+  EXPECT_TRUE(constraints.lockEdge(defaultVertex, otherVertex, defaultRunner, 5, 7));
+  EXPECT_TRUE(constraints.getEdgeLocks(defaultVertex, thirdVertex).empty());
+  EXPECT_TRUE(constraints.getEdgeLocks(thirdVertex, otherVertex).empty());
+}
+
+TEST(Constraints, unlock_edge_releases_the_lock_of_given_runner_on_the_edge)
+{
+  DefaultGraphLoader loader;
+  WeightedDiGraph graph = loader.getGraph();
+  ConstraintsStub constraints(graph);
+  EXPECT_TRUE(constraints.lockEdge(otherVertex, defaultVertex, defaultRunner, 5, 7));
+  constraints.unlockEdge(otherVertex, defaultVertex, defaultRunner, 5, 7);
+  const auto& edgeLocks = constraints.getEdgeLocks(otherVertex, defaultVertex);
+  EXPECT_TRUE(edgeLocks.empty());
+  EXPECT_TRUE(constraints.isEdgeFreeForRunner(defaultVertex, otherVertex, defaultRunner, 5, 7));
+  EXPECT_TRUE(constraints.isEdgeFreeForRunner(defaultVertex, otherVertex, otherRunner, 5, 7));
+}
+
+TEST(Constraints, unlock_edge_does_not_release_the_lock_if_called_for_other_runner)
+{
+  DefaultGraphLoader loader;
+  WeightedDiGraph graph = loader.getGraph();
+  ConstraintsStub constraints(graph);
+  EXPECT_TRUE(constraints.lockEdge(otherVertex, defaultVertex, defaultRunner, 5, 7));
+  constraints.unlockEdge(otherVertex, defaultVertex, otherRunner, 5, 7);
+  EXPECT_FALSE(constraints.isEdgeFreeForRunner(defaultVertex, otherVertex, otherRunner, 5, 7));
+  EXPECT_TRUE(constraints.isEdgeFreeForRunner(defaultVertex, otherVertex, defaultRunner, 5, 7));
 }
